@@ -1,0 +1,88 @@
+.navbar {
+    @apply fixed top-0 w-full z-50 transition-all duration-300;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+  }
+  
+  .navbar-scrolled {
+    @apply shadow-lg backdrop-blur-lg bg-opacity-90;
+  }
+  
+  .navbar-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .navbar-content {
+    @apply flex justify-between items-center h-16;
+  }
+  
+  .navbar-logo {
+    @apply flex items-center space-x-2 transition-transform duration-300 hover:scale-105;
+  }
+  
+  .logo-text {
+    @apply text-3xl font-bold text-white tracking-tight;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .navbar-links-desktop {
+    @apply hidden md:flex items-center space-x-6;
+  }
+  
+  .nav-link {
+    @apply flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold 
+           transition-all duration-300 text-white hover:bg-white/10 
+           hover:scale-105 hover:shadow-md;
+  }
+  
+  .nav-link-active {
+    @apply bg-white/20 shadow-lg;
+    backdrop-filter: blur(4px);
+  }
+  
+  .nav-icon {
+    @apply h-4 w-4;
+  }
+  
+  .navbar-mobile-button {
+    @apply md:hidden inline-flex items-center justify-center p-2 rounded-lg 
+           text-white hover:bg-white/10 transition-colors duration-300
+           focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 
+           focus:ring-offset-purple-600;
+  }
+  
+  .navbar-mobile {
+    @apply md:hidden fixed inset-x-0 top-16 bg-gradient-to-b from-purple-600 
+           to-pink-500 transform transition-transform duration-300 ease-in-out;
+    transform: translateY(-100%);
+    height: calc(100vh - 4rem);
+  }
+  
+  .navbar-mobile-open {
+    transform: translateY(0);
+  }
+  
+  .nav-link-mobile {
+    @apply flex items-center space-x-3 px-6 py-4 text-lg font-medium text-white
+           hover:bg-white/10 transition-all duration-300 border-b border-white/10;
+  }
+  
+  .nav-link-mobile-active {
+    @apply bg-white/20;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .navbar-links-desktop .nav-link {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  /* Glass effect for scrolled state */
+  .navbar-scrolled::before {
+    content: '';
+    @apply absolute inset-0 backdrop-blur-lg bg-black/5;
+    z-index: -1;
+  }

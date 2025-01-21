@@ -1,0 +1,172 @@
+/* home.css */
+:root {
+  --gradient-start: #4f46e5;
+  --gradient-middle: #7c3aed;
+  --gradient-end: #ec4899;
+}
+
+/* Hero section styling */
+.hero-section {
+  background: linear-gradient(135deg, 
+    var(--gradient-start) 0%,
+    var(--gradient-middle) 50%,
+    var(--gradient-end) 100%
+  );
+  position: relative;
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #fff, #e0e7ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-title {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hero-button {
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.1)
+  );
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.hero-button:hover {
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.25),
+    rgba(255, 255, 255, 0.15)
+  );
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Articles section styling */
+.articles-section {
+  background: #f8fafc;
+}
+
+.section-title {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.article-card {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.article-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    800px circle at var(--mouse-x) var(--mouse-y),
+    rgba(124, 58, 237, 0.1),
+    transparent 40%
+  );
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.article-card:hover {
+  box-shadow: 
+    0 10px 20px rgba(0, 0, 0, 0.1),
+    0 4px 6px rgba(0, 0, 0, 0.06);
+}
+
+.article-card:hover::before {
+  opacity: 1;
+}
+
+.article-link {
+  color: var(--gradient-middle);
+  position: relative;
+}
+
+.article-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--gradient-middle), var(--gradient-end));
+  transition: width 0.3s ease;
+}
+
+.article-link:hover::after {
+  width: 100%;
+}
+
+/* CTA section styling */
+.cta-section {
+  background: linear-gradient(135deg, 
+    var(--gradient-start) 0%,
+    var(--gradient-middle) 50%,
+    var(--gradient-end) 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-title {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.cta-button {
+  background: white;
+  color: var(--gradient-middle);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.cta-button:hover {
+  background: #f8fafc;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Particles effect */
+.particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gradient-middle) #ddd;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--gradient-middle);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--gradient-start);
+}

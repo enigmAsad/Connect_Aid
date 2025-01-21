@@ -1,0 +1,33 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.*
+frontend/logs
+frontend/*.log
+frontend/.vite/
+frontend/coverage/
+frontend/*.local
+
+# Backend
+backend/node_modules/
+backend/.env
+backend/dist/
+backend/build/
+backend/logs/
+backend/*.log
+backend/coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# General
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
