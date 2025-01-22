@@ -1,9 +1,10 @@
 import { useState, FormEvent } from 'react';
-import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, User } from 'lucide-react';
 import api from '../api/axios';
 import axios from 'axios';
 
 const SignUp = () => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -11,49 +12,11 @@ const SignUp = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Password strength indicators
   const hasLength = password.length >= 8;
   const hasNumber = /\d/.test(password);
   const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
   const hasUpperCase = /[A-Z]/.test(password);
   const passwordsMatch = password === confirmPassword && password !== '';
-
-  // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  
-  //   if (!passwordsMatch) {
-  //     return;
-  //   }
-  
-  //   setIsLoading(true);
-  
-  //   try {
-  //     const response = await api.post('/signup', {
-  //       email,
-  //       password
-  //     });
-      
-  //     console.log("Signup successful:", response.data);
-  //     alert("Account created successfully!");
-      
-  //     // Optionally redirect to login page
-  //     // window.location.href = '/login';
-      
-  //   } catch (error) {
-  //     if (axios.isAxiosError(error)) {
-  //       const message = error.response?.data?.msg || "Something went wrong. Please try again.";
-  //       console.error("Signup error:", message);
-  //       console.error("Signup error:", error.response);
-
-  //       alert(message);
-  //     } else {
-  //       console.error("Signup error:", error);
-  //       alert("Something went wrong. Please try again.");
-  //     }
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,18 +29,16 @@ const SignUp = () => {
   
     try {
       const response = await api.post('/signup', {
+        username,
         email,
         password
       });
   
       console.log('Signup successful:', response.data);
       
-      // Store token
       localStorage.setItem('token', response.data.token);
       
       alert('Account created successfully!');
-      // Redirect if needed
-      // window.location.href = '/login';
   
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -104,6 +65,24 @@ const SignUp = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Username
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                pl-11 transition-all duration-200 outline-none hover:border-gray-400"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Choose a username"
+                required
+              />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Email address
