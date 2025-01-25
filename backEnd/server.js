@@ -24,7 +24,8 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Routes
 app.use('/', require('./routes/auth'));
-app.use('/api/appeals', require('./routes/appeals')); // This will handle all /api/appeals/* routes
+app.use('/api/appeals', require('./routes/appeals'));
+app.use('/api/user', require('./routes/userInfo')); 
 
 // Add a test route to verify the server is working
 app.get('/test', (req, res) => {

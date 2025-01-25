@@ -1,11 +1,11 @@
-import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import Navbar from './components/Navbar';  
-import Sidebar from './components/Sidebar';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/UserLayout';
+import Navbar from './components/Navbar';
 import Profile from './pages/Profile';
 import Donate from './pages/Donate';
 import Raise from './pages/Raise';
 import Settings from './pages/Settings';
-import Home from './pages/Home';  
+import Home from './pages/Home';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 
@@ -13,7 +13,6 @@ const App = () => {
   return (
     <Router>
       <div className="min-h-screen">
-        {/* Show Navbar only on non-dashboard pages */}
         <Routes>
           <Route path="/" element={
             <>
@@ -33,39 +32,27 @@ const App = () => {
               <SignUp />
             </>
           } />
-          
-          {/* Dashboard Layout with Sidebar */}
+
+          {/* Dashboard Layout with Layout Component */}
           <Route path="/profile" element={
-            <div className="flex">
-              <Sidebar />
-              <div className="flex-1">
-                <Profile />
-              </div>
-            </div>
+            <Layout>
+              <Profile />
+            </Layout>
           } />
           <Route path="/donate" element={
-            <div className="flex">
-              <Sidebar />
-              <div className="flex-1">
-                <Donate />
-              </div>
-            </div>
+            <Layout>
+              <Donate />
+            </Layout>
           } />
           <Route path="/raise" element={
-            <div className="flex">
-              <Sidebar />
-              <div className="flex-1">
-                <Raise />
-              </div>
-            </div>
+            <Layout>
+              <Raise />
+            </Layout>
           } />
           <Route path="/settings" element={
-            <div className="flex">
-              <Sidebar />
-              <div className="flex-1">
-                <Settings />
-              </div>
-            </div>
+            <Layout>
+              <Settings />
+            </Layout>
           } />
         </Routes>
       </div>
