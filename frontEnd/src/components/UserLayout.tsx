@@ -9,14 +9,12 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [username, setUsername] = useState<string>('User');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
-        const userData = await fetchUserProfile();
-        setUsername(userData.username);
+        await fetchUserProfile();
       } catch (error) {
         console.error('Failed to load user profile');
       } finally {
@@ -27,35 +25,35 @@ const Layout = ({ children }: LayoutProps) => {
     loadUserProfile();
   }, []);
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="text-xl font-semibold text-gray-700">Loading...</div>
+      </div>
+    );
   }
 
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar 
         isSidebarOpen={isSidebarOpen} 
-        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
+        onToggleSidebar={toggleSidebar}
       />
 
       <div className="flex-1 flex flex-col min-h-screen">
         <UserNavbar 
-          username={username}
-          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          onToggleSidebar={toggleSidebar}
           isSidebarOpen={isSidebarOpen}
         />
         
-        <main className="flex-1 p-4 mt-16">
+        <main className="flex-1 p-4 mt-16 overflow-y-auto">
           {children}
         </main>
       </div>
-
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 lg:hidden z-30"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
     </div>
   );
 };

@@ -1,23 +1,38 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X, Wallet, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { fetchUserProfile } from '../services/UserService';
 
 // Define the prop types
 export interface NavbarProps {
-  username?: string;
   onToggleSidebar: () => void;
   isSidebarOpen: boolean;
 }
 
 // Explicitly type the component
 const UserNavbar: React.FC<NavbarProps> = ({ 
-  username = 'User', 
   onToggleSidebar, 
   isSidebarOpen 
 }) => {
   const navigate = useNavigate();
-  const [balance] = useState('0.00');
+  const [username, setUsername] = useState('User');
+  const [balance, setBalance] = useState('0.00');
+
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      try {
+        const userData = await fetchUserProfile();
+        setUsername(userData.username);
+        // Assuming the user service can also provide balance
+        setBalance(userData.balance || '0.00');
+      } catch (error) {
+        console.error('Failed to load user profile');
+      }
+    };
+
+    loadUserProfile();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -34,6 +49,7 @@ const UserNavbar: React.FC<NavbarProps> = ({
             <button
               onClick={onToggleSidebar}
               className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 lg:hidden"
+              aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
             >
               {isSidebarOpen ? (
                 <X className="w-6 h-6" />
