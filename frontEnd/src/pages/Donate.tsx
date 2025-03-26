@@ -1,28 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchAllAppeals, Appeal } from '../services/AppealService';
 
-const Donate = () => {
-  // Sample donation data - replace with real data from your backend
-  const [donations] = useState([
-    {
-      id: 1,
-      title: "Medical Treatment Support",
-      description: "Help John with his urgent medical treatment expenses",
-      image: "",
-      goal: 5000,
-      raised: 3200,
-      daysLeft: 15
-    },
-    {
-      id: 2,
-      title: "Education Fund",
-      description: "Support Sarah's college education dreams",
-      image: "",
-      goal: 10000,
-      raised: 4500,
-      daysLeft: 30
-    }
-  ]);
+const Donate: React.FC = () => {
+  const [appeals, setAppeals] = useState<Appeal[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -35,21 +18,60 @@ const Donate = () => {
     { id: 'community', name: 'Community' }
   ];
 
-  const calculateProgress = (raised: number, goal: number) => {
-    return (raised / goal) * 100;
+  useEffect(() => {
+    const loadAppeals = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedAppeals = await fetchAllAppeals();
+        setAppeals(fetchedAppeals);
+        setIsLoading(false);
+      } catch (err) {
+        setError('Failed to load appeals. Please try again.');
+        setIsLoading(false);
+      }
+    };
+
+    loadAppeals();
+  }, []);
+
+  const calculateProgress = (currentAmount: number | undefined, targetAmount: number) => {
+    return currentAmount ? (currentAmount / targetAmount) * 100 : 0;
   };
 
-  return (
+  const filteredAppeals = appeals.filter(appeal => 
+    // Filter by search term
+    (appeal.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+     appeal.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    // Filter by category (if not 'all')
+    (selectedCategory === 'all' || appeal.reason.toLowerCase() === selectedCategory)
+  );
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-gray-600">Loading appeals...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-500 text-xl">{error}</div>
+      </div>
+    );
+  }
+
+  return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header Section */}
         <div className="bg-white rounded-t-xl shadow-sm p-6 mb-1">
           <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Make a Difference Today
+            Make a Difference Today
           </h1>
           <p className="text-center text-gray-600 mt-2">
-          Your generosity can transform lives. Browse through active donation appeals or create your own to help those in need.
+            Your generosity can transform lives. Browse through active donation appeals or create your own to help those in need.
           </p>
         </div>
 
@@ -84,23 +106,30 @@ const Donate = () => {
           </div>
         </div>
 
-        {donations.length > 0 ? (
+        {filteredAppeals.length > 0 ? (
           <>
             {/* Donation Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {donations.map(donation => (
-                <div key={donation.id} className="bg-white rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-[1.02]">
+              {filteredAppeals.map(appeal => (
+                <div 
+                  key={appeal._id} 
+                  className="bg-white rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-[1.02]"
+                >
                   <img
-                    src={donation.image}
-                    alt={donation.title}
+                    src={`http://localhost:5000${appeal.image}`}
+                    alt={appeal.title}
                     className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      // Fallback to placeholder if image fails to load
+                      e.currentTarget.src = '/api/placeholder/400/300';
+                    }}
                   />
                   <div className="p-6">
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      {donation.title}
+                      {appeal.title}
                     </h3>
-                    <p className="text-gray-600 mb-4">
-                      {donation.description}
+                    <p className="text-gray-600 mb-4 line-clamp-3">
+                      {appeal.description}
                     </p>
                     
                     {/* Progress Bar */}
@@ -108,21 +137,23 @@ const Donate = () => {
                       <div className="h-2 bg-gray-200 rounded-full">
                         <div
                           className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                          style={{ width: `${calculateProgress(donation.raised, donation.goal)}%` }}
+                          style={{ 
+                            width: `${calculateProgress(appeal.currentAmount, appeal.targetAmount)}%` 
+                          }}
                         />
                       </div>
                       <div className="flex justify-between mt-2 text-sm text-gray-600">
-                        <span>${donation.raised.toLocaleString()} raised</span>
-                        <span>${donation.goal.toLocaleString()} goal</span>
+                        <span>${(appeal.currentAmount || 0).toLocaleString()} raised</span>
+                        <span>${appeal.targetAmount.toLocaleString()} goal</span>
                       </div>
                     </div>
 
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-500">
-                        {donation.daysLeft} days left
+                        {appeal.reason} Appeal
                       </span>
                       <Link
-                        to={`/donate/${donation.id}`}
+                        to={`/donate-appeal/${appeal._id}`}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                       >
                         Donate Now

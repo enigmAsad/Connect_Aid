@@ -67,4 +67,86 @@ router.put('/profile', authMiddleware, async (req, res) => {
   }
 });
 
+router.get('/balance', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('balance');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json({ balance: user.balance });
+  } catch (error) {
+    console.error('Balance fetch error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Top up balance
+router.post('/balance/topup', authMiddleware, async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    // Validate amount
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: 'Invalid top-up amount' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id, 
+      { $inc: { balance: amount } }, 
+      { new: true, select: 'balance' }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ 
+      message: 'Balance topped up successfully', 
+      balance: user.balance 
+    });
+  } catch (error) {
+    console.error('Balance top-up error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Deduct balance (for purchases)
+router.post('/balance/deduct', authMiddleware, async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    // Validate amount
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: 'Invalid deduction amount' });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if sufficient balance
+    if (user.balance < amount) {
+      return res.status(400).json({ 
+        message: 'Insufficient balance', 
+        currentBalance: user.balance 
+      });
+    }
+
+    user.balance -= amount;
+    await user.save();
+
+    res.json({ 
+      message: 'Balance deducted successfully', 
+      balance: user.balance 
+    });
+  } catch (error) {
+    console.error('Balance deduction error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 module.exports = router;

@@ -12,6 +12,7 @@ import Donate from './pages/Donate';
 import Raise from './pages/Raise';
 import Appeal from './pages/CreateAppealPage';
 import EditAppeal from './pages/EditAppealPage';
+import DonateAppeal from './pages/PayDonation';
 import Settings from './pages/Settings';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -101,6 +102,16 @@ const App = () => {
               //<ProtectedRoute>
                   <Layout>
                     <EditAppeal />
+                  </Layout>
+              //</ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/donate-appeal/:id" 
+            element={
+              //<ProtectedRoute>
+                  <Layout>
+                    <DonateAppeal />
                   </Layout>
               //</ProtectedRoute>
             } 

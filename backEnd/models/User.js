@@ -12,7 +12,18 @@ const userSchema = new mongoose.Schema({
   country: { type: String, default: '' },
   profession: { type: String, default: '' },
   bio: { type: String, default: '' },
-  avatar: { type: String, default: '/api/placeholder/150/150' }
+  avatar: { type: String, default: '/api/placeholder/150/150' },
+
+  // New balance field
+  balance: { 
+    type: Number, 
+    default: 0, 
+    min: 0,
+    validate: {
+      validator: Number.isFinite,
+      message: 'Balance must be a valid number'
+    }
+  }
 }, {
   timestamps: true
 });
