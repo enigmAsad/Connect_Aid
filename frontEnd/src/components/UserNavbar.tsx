@@ -1,99 +1,45 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
-import { Menu, X, Wallet, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { fetchUserProfile } from '../services/UserService';
+import { Menu } from "lucide-react";
 
-// Define the prop types
-export interface NavbarProps {
-  onToggleSidebar: () => void;
-  isSidebarOpen: boolean;
+interface NavbarProps {
+  toggleSidebar: () => void;
 }
 
-// Explicitly type the component
-const UserNavbar: React.FC<NavbarProps> = ({ 
-  onToggleSidebar, 
-  isSidebarOpen 
-}) => {
-  const navigate = useNavigate();
-  const [username, setUsername] = useState('User');
-  const [balance, setBalance] = useState('0.00');
-
-  useEffect(() => {
-    const loadUserProfile = async () => {
-      try {
-        const userData = await fetchUserProfile();
-        setUsername(userData.username);
-        // Assuming the user service can also provide balance
-        setBalance(userData.balance || '0.00');
-      } catch (error) {
-        console.error('Failed to load user profile');
-      }
-    };
-
-    loadUserProfile();
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
-
+export default function Navbar({ toggleSidebar }: NavbarProps) {
   return (
-    <nav className="bg-white border-b border-gray-200 fixed w-full top-0 z-50">
-      <div className="px-4 py-3">
-        <div className="flex items-center justify-between">
-          {/* Left side - Menu toggle and Logo */}
-          <div className="flex items-center">
-            <button
-              onClick={onToggleSidebar}
-              className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 lg:hidden"
-              aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
-            >
-              {isSidebarOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </button>
-            
-            {/* Logo - visible only on mobile when sidebar is closed */}
-            <div className="lg:hidden ml-2">
-              <h1 className="text-xl font-bold text-gray-800">ConnectAid</h1>
-            </div>
-          </div>
+    <nav className="navbar">
+      {/* Hamburger Icon */}
+      <button onClick={toggleSidebar} className="menu-btn">
+        <Menu size={24} />
+      </button>
+      <h1 className="title">Dashboard</h1>
 
-          {/* Center - Welcome Message */}
-          <div className="hidden sm:flex items-center">
-            <h2 className="text-lg font-semibold text-gray-700">
-              Welcome, <span className="text-indigo-600">{username}</span>
-            </h2>
-          </div>
+      {/* Navbar Styles */}
+      <style>{`
+        .navbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px 20px;
+          background: #222;
+          color: white;
+        }
 
-          {/* Right side - Balance and Logout */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg">
-              <Wallet className="w-5 h-5 text-indigo-600" />
-              <span className="font-medium text-gray-700">
-                ${balance}
-              </span>
-            </div>
-            
-            {/* Logout Button */}
-            <button
-              onClick={handleLogout}
-              className="flex items-center text-red-600 hover:text-red-800 transition-colors"
-              title="Logout"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="sr-only">Logout</span>
-            </button>
-          </div>
-        </div>
-      </div>
+        .menu-btn {
+          background: none;
+          border: none;
+          color: white;
+          cursor: pointer;
+        }
+
+        .menu-btn:hover {
+          opacity: 0.8;
+        }
+
+        .title {
+          font-size: 18px;
+          font-weight: bold;
+        }
+      `}</style>
     </nav>
   );
-};
-
-export default UserNavbar;
+}

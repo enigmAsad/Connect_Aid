@@ -5,7 +5,7 @@ import {
   Route, 
   Navigate 
 } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
+import Layout from './components/UserLayout';
 import Navbar from './components/Navbar';
 import Profile from './pages/Profile';
 import Donate from './pages/Donate';
@@ -56,67 +56,44 @@ const App = () => {
           <Route 
             path="/profile" 
             element={
-              <ProtectedRoute>
-                <div className="flex">
-                  <Sidebar 
-                    isSidebarOpen={isSidebarOpen} 
-                    onToggleSidebar={toggleSidebar} 
-                  />
-                  <div className="flex-1 p-4 md:ml-64">
+              //<ProtectedRoute>
+                  <Layout>
                     <Profile />
-                  </div>
-                </div>
-              </ProtectedRoute>
+                  </Layout>
+              //</ProtectedRoute>
             } 
           />
-          <Route 
-            path="/donate" 
+          <Route
+            path="/donate"
             element={
-              <ProtectedRoute>
-                <div className="flex">
-                  <Sidebar 
-                    isSidebarOpen={isSidebarOpen} 
-                    onToggleSidebar={toggleSidebar} 
-                  />
-                  <div className="flex-1 p-4 md:ml-64">
-                    <Donate />
-                  </div>
-                </div>
-              </ProtectedRoute>
-            } 
+              //<ProtectedRoute>
+                <Layout>
+                  <Donate />
+                </Layout>
+              //</ProtectedRoute>
+            }
           />
-          <Route 
-            path="/raise" 
+          <Route
+            path="/raise"
             element={
-              <ProtectedRoute>
-                <div className="flex">
-                  <Sidebar 
-                    isSidebarOpen={isSidebarOpen} 
-                    onToggleSidebar={toggleSidebar} 
-                  />
-                  <div className="flex-1 p-4 md:ml-64">
-                    <Raise />
-                  </div>
-                </div>
-              </ProtectedRoute>
-            } 
+              //<ProtectedRoute>
+                <Layout>
+                  <Raise />
+                </Layout>
+              //</ProtectedRoute>
+            }
           />
-          <Route 
-            path="/settings" 
+          <Route
+            path="/settings"
             element={
-              <ProtectedRoute>
-                <div className="flex">
-                  <Sidebar 
-                    isSidebarOpen={isSidebarOpen} 
-                    onToggleSidebar={toggleSidebar} 
-                  />
-                  <div className="flex-1 p-4 md:ml-64">
-                    <Settings />
-                  </div>
-                </div>
-              </ProtectedRoute>
-            } 
+              //<ProtectedRoute>
+                <Layout>
+                  <Settings />
+                </Layout>
+              //</ProtectedRoute>
+            }
           />
+          
 
           {/* Catch-all route */}
           <Route path="*" element={<Navigate to="/" replace />} />

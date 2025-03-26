@@ -1,61 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { fetchUserProfile } from '../services/UserService';
-import Sidebar from './Sidebar';
-import UserNavbar from './UserNavbar';
+import { ReactNode, useState } from "react";
+import Navbar from "./UserNavbar";
+import Sidebar from "./UserSidebar";
 
 interface LayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const Layout = ({ children }: LayoutProps) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadUserProfile = async () => {
-      try {
-        await fetchUserProfile();
-      } catch (error) {
-        console.error('Failed to load user profile');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadUserProfile();
-  }, []);
+export default function Layout({ children }: LayoutProps) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    setIsSidebarOpen((prev) => !prev);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="text-xl font-semibold text-gray-700">Loading...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar 
-        isSidebarOpen={isSidebarOpen} 
-        onToggleSidebar={toggleSidebar}
-      />
+    <div className="flex">
+      {/* Sidebar - Controlled by Parent */}
+      <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
-      <div className="flex-1 flex flex-col min-h-screen">
-        <UserNavbar 
-          onToggleSidebar={toggleSidebar}
-          isSidebarOpen={isSidebarOpen}
-        />
-        
-        <main className="flex-1 p-4 mt-16 overflow-y-auto">
-          {children}
-        </main>
+      <div className="flex-1">
+        {/* Navbar - Controls Sidebar */}
+        <Navbar toggleSidebar={toggleSidebar} />
+
+        {/* Main Content */}
+        <main className="p-4">{children}</main>
       </div>
     </div>
   );
-};
-
-export default Layout;
+}
