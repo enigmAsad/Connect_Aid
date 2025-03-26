@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchUserAppeals } from '../services/AppealService';
+import { fetchUserAppeals, deleteAppeal } from '../services/AppealService';
 import { Appeal } from '../services/AppealService';
+import { Trash2, Edit } from 'lucide-react';
 
 const Raise: React.FC = () => {
   const [appeals, setAppeals] = useState<Appeal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteConfirmationId, setDeleteConfirmationId] = useState<string | null>(null);
   
   const navigate = useNavigate();
 
@@ -28,6 +30,23 @@ const Raise: React.FC = () => {
 
   const handleCreateNewAppeal = () => {
     navigate('/create-appeal');
+  };
+
+  const handleDeleteAppeal = async (appealId: string) => {
+    try {
+      await deleteAppeal(appealId);
+      // Remove the deleted appeal from the list
+      setAppeals(appeals.filter(appeal => appeal._id !== appealId));
+      setDeleteConfirmationId(null);
+      alert('Appeal deleted successfully');
+    } catch (err) {
+      alert('Failed to delete appeal');
+    }
+  };
+
+  const handleEditAppeal = (appeal: Appeal) => {
+    // Navigate to edit page with appeal details
+    navigate(`/edit-appeal/${appeal._id}`, { state: { appeal } });
   };
 
   if (isLoading) {
@@ -80,7 +99,7 @@ const Raise: React.FC = () => {
               <div className="p-4">
                 <h2 className="text-xl font-semibold mb-2">{appeal.title}</h2>
                 <p className="text-gray-600 mb-2 truncate">{appeal.description}</p>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center mb-4">
                   <span className="text-green-600 font-bold">
                     ${appeal.targetAmount.toLocaleString()}
                   </span>
@@ -88,9 +107,58 @@ const Raise: React.FC = () => {
                     {appeal.status}
                   </span>
                 </div>
+                
+                {/* Action Buttons */}
+                <div className="flex justify-between space-x-2">
+                  {/* Edit Button */}
+                  <button 
+                    onClick={() => handleEditAppeal(appeal)}
+                    className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  >
+                    <span className="flex items-center justify-center">
+                      <Edit className="mr-2 h-4 w-4" /> Edit
+                    </span>
+                  </button>
+
+                  {/* Delete Button with Confirmation */}
+                  <button 
+                    onClick={() => setDeleteConfirmationId(appeal._id!)}
+                    className="w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                  >
+                    <span className="flex items-center justify-center">
+                      <Trash2 className="mr-2 h-4 w-4" /> Delete
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmationId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl">
+            <h2 className="text-xl font-bold mb-4">Are you absolutely sure?</h2>
+            <p className="mb-6 text-gray-600">
+              This action cannot be undone. This will permanently delete your appeal.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button 
+                onClick={() => setDeleteConfirmationId(null)}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleDeleteAppeal(deleteConfirmationId)}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

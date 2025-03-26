@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import Donate from './pages/Donate';
 import Raise from './pages/Raise';
 import Appeal from './pages/CreateAppealPage';
+import EditAppeal from './pages/EditAppealPage';
 import Settings from './pages/Settings';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -90,6 +91,16 @@ const App = () => {
               //<ProtectedRoute>
                   <Layout>
                     <Appeal />
+                  </Layout>
+              //</ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/edit-appeal/:id" 
+            element={
+              //<ProtectedRoute>
+                  <Layout>
+                    <EditAppeal />
                   </Layout>
               //</ProtectedRoute>
             } 

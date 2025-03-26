@@ -3,6 +3,7 @@ const Appeal = require('../models/Appeal');
 const authMiddleware = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs').promises;
 const router = express.Router();
 
 // Configure multer for file upload
@@ -75,6 +76,95 @@ router.get('/', async (req, res) => {
     res.json(appeals);
   } catch (error) {
     console.error('Fetching appeals error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get a single appeal by ID
+router.get('/:id', authMiddleware, async (req, res) => {
+  try {
+    const appeal = await Appeal.findById(req.params.id);
+
+    // Ensure the user can only fetch their own appeal
+    if (!appeal || appeal.user.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ message: 'Appeal not found' });
+    }
+
+    res.json(appeal);
+  } catch (error) {
+    console.error('Fetching single appeal error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Update an appeal
+router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
+  try {
+    const { title, description, targetAmount, reason } = req.body;
+    
+    // Find the existing appeal
+    const appeal = await Appeal.findById(req.params.id);
+
+    // Verify appeal exists and belongs to the user
+    if (!appeal || appeal.user.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ message: 'Appeal not found' });
+    }
+
+    // If a new image is uploaded, delete the old image (if it exists and is not a placeholder)
+    if (req.file && appeal.image && !appeal.image.includes('/api/placeholder/')) {
+      try {
+        await fs.unlink(path.join('.' + appeal.image));
+      } catch (unlinkError) {
+        console.error('Error deleting old image:', unlinkError);
+      }
+    }
+
+    // Update appeal details
+    appeal.title = title;
+    appeal.description = description;
+    appeal.targetAmount = parseFloat(targetAmount);
+    appeal.reason = reason;
+
+    // Update image if a new one is uploaded
+    if (req.file) {
+      appeal.image = `/uploads/appeals/${req.file.filename}`;
+    }
+
+    await appeal.save();
+
+    res.json(appeal);
+  } catch (error) {
+    console.error('Appeal update error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Delete an appeal
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    // Find the appeal
+    const appeal = await Appeal.findById(req.params.id);
+
+    // Verify appeal exists and belongs to the user
+    if (!appeal || appeal.user.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ message: 'Appeal not found' });
+    }
+
+    // Delete the associated image file if it exists and is not a placeholder
+    if (appeal.image && !appeal.image.includes('/api/placeholder/')) {
+      try {
+        await fs.unlink(path.join('.' + appeal.image));
+      } catch (unlinkError) {
+        console.error('Error deleting appeal image:', unlinkError);
+      }
+    }
+
+    // Remove the appeal from the database
+    await Appeal.findByIdAndDelete(req.params.id);
+
+    res.json({ message: 'Appeal deleted successfully' });
+  } catch (error) {
+    console.error('Appeal deletion error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

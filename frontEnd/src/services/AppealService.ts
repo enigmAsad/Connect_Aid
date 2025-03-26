@@ -47,3 +47,36 @@ export const fetchAllAppeals = async (): Promise<Appeal[]> => {
     throw error;
   }
 };
+
+export const deleteAppeal = async (appealId: string): Promise<void> => {
+  try {
+    await api.delete(`/api/appeals/${appealId}`);
+  } catch (error) {
+    console.error('Failed to delete appeal:', error);
+    throw error;
+  }
+};
+
+export const fetchAppealById = async (appealId: string): Promise<Appeal> => {
+  try {
+    const response = await api.get(`/api/appeals/${appealId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch appeal by ID:', error);
+    throw error;
+  }
+};
+
+export const updateAppeal = async (appealId: string, appealData: FormData): Promise<Appeal> => {
+  try {
+    const response = await api.put(`/api/appeals/${appealId}`, appealData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update appeal:', error);
+    throw error;
+  }
+};
