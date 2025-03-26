@@ -33,14 +33,14 @@ const upload = multer({
 // Create a new appeal
 router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, targetAmount, reason } = req.body;
+    const { title, description, targetAmount, category } = req.body;
     
     const newAppeal = new Appeal({
       user: req.user._id,
       title,
       description,
       targetAmount: parseFloat(targetAmount),
-      reason,
+      category: category || 'other',
       // Use full path including server URL if needed
       image: req.file 
         ? `/uploads/appeals/${req.file.filename}` 
@@ -100,7 +100,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // Update an appeal
 router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, targetAmount, reason } = req.body;
+    const { title, description, targetAmount, category } = req.body;
     
     // Find the existing appeal
     const appeal = await Appeal.findById(req.params.id);
@@ -123,7 +123,7 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
     appeal.title = title;
     appeal.description = description;
     appeal.targetAmount = parseFloat(targetAmount);
-    appeal.reason = reason;
+    appeal.category = category || 'other';
 
     // Update image if a new one is uploaded
     if (req.file) {

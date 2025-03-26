@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchAllAppeals, Appeal } from '../services/AppealService';
+import { fetchAllAppeals, Appeal, AppealCategory } from '../services/AppealService';
 
 const Donate: React.FC = () => {
   const [appeals, setAppeals] = useState<Appeal[]>([]);
@@ -8,14 +8,15 @@ const Donate: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState<AppealCategory | 'all'>('all');
 
-  const categories = [
+  const categories: { id: AppealCategory | 'all', name: string }[] = [
     { id: 'all', name: 'All Causes' },
     { id: 'medical', name: 'Medical' },
     { id: 'education', name: 'Education' },
     { id: 'emergency', name: 'Emergency' },
-    { id: 'community', name: 'Community' }
+    { id: 'community', name: 'Community' },
+    { id: 'other', name: 'Other' }
   ];
 
   useEffect(() => {
@@ -43,7 +44,7 @@ const Donate: React.FC = () => {
     (appeal.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
      appeal.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
     // Filter by category (if not 'all')
-    (selectedCategory === 'all' || appeal.reason.toLowerCase() === selectedCategory)
+    (selectedCategory === 'all' || appeal.category === selectedCategory)
   );
 
   if (isLoading) {
@@ -75,7 +76,6 @@ const Donate: React.FC = () => {
           </p>
         </div>
 
-        {/* Search and Filter Section */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search Bar */}
@@ -89,11 +89,11 @@ const Donate: React.FC = () => {
               />
             </div>
 
-            {/* Category Filter */}
+            {/* Category Dropdown */}
             <div className="flex-shrink-0">
               <select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => setSelectedCategory(e.target.value as AppealCategory | 'all')}
                 className="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 {categories.map(category => (
@@ -149,9 +149,6 @@ const Donate: React.FC = () => {
                     </div>
 
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">
-                        {appeal.reason} Appeal
-                      </span>
                       <Link
                         to={`/donate-appeal/${appeal._id}`}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

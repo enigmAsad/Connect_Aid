@@ -28,9 +28,11 @@ const appealSchema = new mongoose.Schema({
     type: String, 
     default: '/api/placeholder/400/300' 
   },
-  reason: { 
+  category: { 
     type: String, 
-    required: true 
+    required: true,
+    enum: ['medical', 'education', 'emergency', 'community', 'other'],
+    default: 'other'
   },
   status: { 
     type: String, 

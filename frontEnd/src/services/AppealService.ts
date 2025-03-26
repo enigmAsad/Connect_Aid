@@ -1,5 +1,7 @@
 import api from '../api/axios';
 
+export type AppealCategory = 'medical' | 'education' | 'emergency' | 'community' | 'other';
+
 export interface Appeal {
   _id?: string;
   user: string;
@@ -8,7 +10,7 @@ export interface Appeal {
   targetAmount: number;
   currentAmount?: number;
   image?: string;
-  reason: string;
+  category: AppealCategory;
   status?: 'active' | 'completed' | 'closed';
   createdAt?: string;
   updatedAt?: string;

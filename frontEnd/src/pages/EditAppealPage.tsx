@@ -1,17 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { 
-  AppealFormData, 
-  AppealFormErrors,
-  initialAppealFormData, 
-  validateAppealForm 
-} from '../types/appealTypes';
+  AppealCategory, 
+  Appeal
+} from '../services/AppealService';
 import { updateAppeal, fetchAppealById } from '../services/AppealService';
 import { toast } from 'sonner';
 
+// Updated interface to include category
+interface AppealFormData {
+  title: string;
+  description: string;
+  targetAmount: number;
+  reason?: string;
+  image: File | null;
+  category: AppealCategory;
+}
+
+// Updated initial form data
+const initialAppealFormData: AppealFormData = {
+  title: '',
+  description: '',
+  targetAmount: 0,
+  reason: '',
+  image: null,
+  category: 'other'
+};
+
+// Categories list for dropdown
+const APPEAL_CATEGORIES: AppealCategory[] = [
+  'medical', 
+  'education', 
+  'emergency', 
+  'community', 
+  'other'
+];
+
+// Form validation function
+const validateAppealForm = (formData: AppealFormData) => {
+  const errors: { [key: string]: string } = {};
+
+  if (!formData.title.trim()) {
+    errors.title = 'Title is required';
+  }
+
+  if (!formData.description.trim()) {
+    errors.description = 'Description is required';
+  }
+
+  if (formData.targetAmount <= 0) {
+    errors.targetAmount = 'Target amount must be greater than zero';
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  };
+};
+
 const EditAppealPage: React.FC = () => {
   const [formData, setFormData] = useState<AppealFormData>(initialAppealFormData);
-  const [errors, setErrors] = useState<AppealFormErrors>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +73,7 @@ const EditAppealPage: React.FC = () => {
     const loadAppeal = async () => {
       try {
         // First try to get appeal from navigation state
-        const stateAppeal = location.state?.appeal;
+        const stateAppeal = location.state?.appeal as Appeal;
         
         if (stateAppeal) {
           // If appeal is passed through navigation state
@@ -32,8 +81,9 @@ const EditAppealPage: React.FC = () => {
             title: stateAppeal.title,
             description: stateAppeal.description,
             targetAmount: stateAppeal.targetAmount,
-            reason: stateAppeal.reason,
-            image: null // We'll handle image separately
+            reason: '', // Reset reason as it's not part of Appeal model
+            image: null,
+            category: stateAppeal.category
           });
           setIsLoading(false);
         } else if (id) {
@@ -43,8 +93,9 @@ const EditAppealPage: React.FC = () => {
             title: appeal.title,
             description: appeal.description,
             targetAmount: appeal.targetAmount,
-            reason: appeal.reason,
-            image: null
+            reason: '', // Reset reason as it's not part of Appeal model
+            image: null,
+            category: appeal.category
           });
           setIsLoading(false);
         } else {
@@ -62,7 +113,7 @@ const EditAppealPage: React.FC = () => {
   }, [id, navigate, location.state]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -103,7 +154,7 @@ const EditAppealPage: React.FC = () => {
     formPayload.append('title', formData.title);
     formPayload.append('description', formData.description);
     formPayload.append('targetAmount', formData.targetAmount.toString());
-    formPayload.append('reason', formData.reason);
+    formPayload.append('category', formData.category);
     
     if (formData.image) {
       formPayload.append('image', formData.image);
@@ -180,17 +231,20 @@ const EditAppealPage: React.FC = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="reason" className="block mb-2">Reason for Appeal</label>
-          <textarea
-            id="reason"
-            name="reason"
-            value={formData.reason}
+          <label htmlFor="category" className="block mb-2">Category</label>
+          <select
+            id="category"
+            name="category"
+            value={formData.category}
             onChange={handleInputChange}
-            className={`w-full px-3 py-2 border rounded ${errors.reason ? 'border-red-500' : ''}`}
-            rows={3}
-            placeholder="Explain the purpose of your fundraising"
-          />
-          {errors.reason && <p className="text-red-500 text-sm mt-1">{errors.reason}</p>}
+            className="w-full px-3 py-2 border rounded"
+          >
+            {APPEAL_CATEGORIES.map(category => (
+              <option key={category} value={category}>
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-4">
