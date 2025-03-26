@@ -4,7 +4,7 @@ const router = express.Router();
 const User = require('../models/User');
 const authMiddleware = require('../middleware/auth');
 
-router.get('/profile', authMiddleware, async (req, res) => {
+router.get('/details', authMiddleware, async (req, res) => {
   try {
     // req.user is now populated by the authMiddleware
     const user = await User.findById(req.user._id).select('username');

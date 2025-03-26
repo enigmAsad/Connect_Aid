@@ -1,63 +1,44 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const appealSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+  user: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
   },
-  title: {
-    type: String,
+  title: { 
+    type: String, 
     required: true,
-    minLength: 10
+    trim: true 
   },
-  category: {
-    type: String,
+  description: { 
+    type: String, 
+    required: true 
+  },
+  targetAmount: { 
+    type: Number, 
     required: true,
-    enum: ['Medical', 'Education', 'Emergency', 'Community', 'Natural Disaster', 'Other']
+    min: 0 
   },
-  description: {
-    type: String,
-    required: true,
-    minLength: 50
+  currentAmount: { 
+    type: Number, 
+    default: 0 
   },
-  targetAmount: {
-    type: Number,
-    required: true,
-    min: 0
+  image: { 
+    type: String, 
+    default: '/api/placeholder/400/300' 
   },
-  deadline: {
-    type: Date,
-    required: true
+  reason: { 
+    type: String, 
+    required: true 
   },
-  contactInfo: {
-    type: String,
-    required: true
-  },
-  beneficiaryName: {
-    type: String,
-    required: true
-  },
-  imageUrl: {
-    type: String,
-    required: true
-  },
-  documentUrls: [{
-    type: String
-  }],
-  currentAmount: {
-    type: Number,
-    default: 0
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'active', 'completed', 'cancelled'],
-    default: 'pending'
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  status: { 
+    type: String, 
+    enum: ['active', 'completed', 'closed'], 
+    default: 'active' 
   }
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model('Appeal', appealSchema);

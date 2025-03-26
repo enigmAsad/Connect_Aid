@@ -10,6 +10,7 @@ import Navbar from './components/Navbar';
 import Profile from './pages/Profile';
 import Donate from './pages/Donate';
 import Raise from './pages/Raise';
+import Appeal from './pages/CreateAppealPage';
 import Settings from './pages/Settings';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -82,6 +83,16 @@ const App = () => {
                 </Layout>
               //</ProtectedRoute>
             }
+          />
+          <Route 
+            path="/create-appeal" 
+            element={
+              //<ProtectedRoute>
+                  <Layout>
+                    <Appeal />
+                  </Layout>
+              //</ProtectedRoute>
+            } 
           />
           <Route
             path="/settings"

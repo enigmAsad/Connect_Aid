@@ -1,8 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  //baseURL: 'http://localhost:5000',
-  baseURL: 'http://ca-backend-env.eba-qjxcc22x.eu-north-1.elasticbeanstalk.com',
+  baseURL: 'http://localhost:5000',
   headers: {
     'Content-Type': 'application/json'
   }
