@@ -81,16 +81,16 @@ router.get('/', async (req, res) => {
 });
 
 // Get a single appeal by ID
-router.get('/:id', authMiddleware, async (req, res) => {
+// Change this route from authenticated to public
+router.get('/:id', async (req, res) => {
   try {
-    const appeal = await Appeal.findById(req.params.id);
-
-    // Ensure the user can only fetch their own appeal
-    if (!appeal || appeal.user.toString() !== req.user._id.toString()) {
+    const appeal = await Appeal.find({ _id: req.params.id });
+    
+    if (!appeal || appeal.length === 0) {
       return res.status(404).json({ message: 'Appeal not found' });
     }
 
-    res.json(appeal);
+    res.json(appeal[0]); // Return the first (and only) appeal
   } catch (error) {
     console.error('Fetching single appeal error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });

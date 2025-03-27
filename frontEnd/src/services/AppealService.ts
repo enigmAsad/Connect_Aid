@@ -61,10 +61,18 @@ export const deleteAppeal = async (appealId: string): Promise<void> => {
 
 export const fetchAppealById = async (appealId: string): Promise<Appeal> => {
   try {
+    console.log(`Fetching appeal with ID: ${appealId}`);
+    
     const response = await api.get(`/api/appeals/${appealId}`);
+    
+    console.log('Fetch appeal response:', response.data);
     return response.data;
-  } catch (error) {
-    console.error('Failed to fetch appeal by ID:', error);
+  } catch (error: any) {
+    console.error('Detailed fetch appeal error:', {
+      message: error.message,
+      responseData: error.response?.data,
+      status: error.response?.status
+    });
     throw error;
   }
 };
