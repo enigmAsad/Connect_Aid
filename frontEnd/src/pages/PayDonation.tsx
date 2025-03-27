@@ -2,33 +2,39 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAppealById } from '../services/AppealService';
 import { Appeal } from '../services/AppealService';
+import { BalanceService } from '../services/BalanceService';
 import api from '../api/axios';
 
-const DonatePayment: React.FC = () => {
+const PayDonation: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [appeal, setAppeal] = useState<Appeal | null>(null);
   const [donationAmount, setDonationAmount] = useState<number>(0);
+  const [userBalance, setUserBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadAppeal = async () => {
+    const loadData = async () => {
       try {
         if (!id) {
           throw new Error('No appeal ID provided');
         }
         const fetchedAppeal = await fetchAppealById(id);
         setAppeal(fetchedAppeal);
+
+        const balance = await BalanceService.fetchBalance();
+        setUserBalance(balance);
+
         setIsLoading(false);
       } catch (err) {
-        setError('Failed to load appeal details');
+        setError('Failed to load appeal details or balance');
         setIsLoading(false);
       }
     };
 
-    loadAppeal();
+    loadData();
   }, [id]);
 
   const calculateProgress = (currentAmount: number | undefined, targetAmount: number) => {
@@ -37,20 +43,33 @@ const DonatePayment: React.FC = () => {
 
   const handleDonationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
 
     if (!id || !appeal) {
       setError('Invalid appeal');
       return;
     }
 
+    // Validate donation amount
     if (donationAmount <= 0) {
       setError('Donation amount must be greater than zero');
       return;
     }
 
+    // Check if donation amount exceeds user balance
+    if (donationAmount > userBalance) {
+      // Show alert when donation amount exceeds balance
+      alert(`Insufficient balance. Your current balance is $${userBalance.toLocaleString()}. 
+Please top up your balance or reduce the donation amount.`);
+      return;
+    }
+
     try {
+      // Deduct balance first
+      await BalanceService.deductBalance(donationAmount);
+
       // Update the appeal with the new donation amount
-      const updatedAppeal = await api.post(`/api/donations/${id}`, { 
+      await api.post(`/api/donations/${id}`, { 
         amount: donationAmount 
       });
 
@@ -59,6 +78,7 @@ const DonatePayment: React.FC = () => {
       navigate('/donate');
     } catch (err) {
       setError('Failed to process donation. Please try again.');
+      console.error(err);
     }
   };
 
@@ -101,6 +121,11 @@ const DonatePayment: React.FC = () => {
             {appeal.description}
           </p>
 
+          {/* User Balance */}
+          <div className="mb-4 text-gray-700">
+            Your Current Balance: <span className="font-bold">${userBalance.toLocaleString()}</span>
+          </div>
+
           {/* Progress Bar */}
           <div className="mb-6">
             <div className="h-2 bg-gray-200 rounded-full">
@@ -137,11 +162,15 @@ const DonatePayment: React.FC = () => {
                   value={donationAmount}
                   onChange={(e) => setDonationAmount(parseFloat(e.target.value))}
                   min="1"
+                  max={userBalance}
                   step="1"
                   placeholder="Enter donation amount"
                   className="w-full pl-7 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
+              <p className="text-sm text-gray-500 mt-1">
+                Maximum donation: ${userBalance.toLocaleString()}
+              </p>
             </div>
 
             {error && (
@@ -163,4 +192,4 @@ const DonatePayment: React.FC = () => {
   );
 };
 
-export default DonatePayment;
+export default PayDonation;

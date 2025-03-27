@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   // New balance field
   balance: { 
     type: Number, 
-    default: 0, 
+    default: 5000, 
     min: 0,
     validate: {
       validator: Number.isFinite,
