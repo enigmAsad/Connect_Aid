@@ -13,7 +13,9 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
           <button onClick={toggleSidebar} className="menu-btn">
             <Menu size={24} />
           </button>
-          <h1 className="dashboard-title">Dashboard</h1>
+          <div className="logo-text">
+            Connect<span className="text-pink-500">Aid</span>
+          </div>
         </div>
       </div>
 
@@ -30,14 +32,15 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
 
         .user-navbar-container {
           max-width: 1280px;
-          margin: 0 auto;
-          padding: 0 1rem;
+          margin: 0;
+          padding: 0;
         }
 
         .user-navbar-content {
           display: flex;
           align-items: center;
           height: 4rem;
+          padding-left: 1rem;
         }
 
         .menu-btn {
@@ -58,12 +61,13 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
           transform: scale(1.05);
         }
 
-        .dashboard-title {
-          font-size: 1.5rem;
+        .logo-text {
+          font-size: 1.875rem;
           font-weight: bold;
           color: white;
-          margin-left: 1rem;
+          margin-left: 0.75rem;
           text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+          letter-spacing: -0.025em;
         }
       `}</style>
     </nav>
