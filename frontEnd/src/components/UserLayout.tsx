@@ -23,7 +23,7 @@ export default function Layout({ children }: LayoutProps) {
         <Navbar toggleSidebar={toggleSidebar} />
 
         {/* Main Content */}
-        <main className="p-4">{children}</main>
+        <main className="p-4 pt-20">{children}</main>
       </div>
     </div>
   );

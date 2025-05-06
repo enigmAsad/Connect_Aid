@@ -6,22 +6,38 @@ interface NavbarProps {
 
 export default function Navbar({ toggleSidebar }: NavbarProps) {
   return (
-    <nav className="navbar">
+    <nav className="user-navbar">
       {/* Hamburger Icon */}
-      <button onClick={toggleSidebar} className="menu-btn">
-        <Menu size={24} />
-      </button>
-      <h1 className="title">Dashboard</h1>
+      <div className="user-navbar-container">
+        <div className="user-navbar-content">
+          <button onClick={toggleSidebar} className="menu-btn">
+            <Menu size={24} />
+          </button>
+          <h1 className="dashboard-title">Dashboard</h1>
+        </div>
+      </div>
 
       {/* Navbar Styles */}
       <style>{`
-        .navbar {
+        .user-navbar {
+          position: fixed;
+          top: 0;
+          width: 100%;
+          z-index: 50;
+          transition: all 0.3s;
+          background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+        }
+
+        .user-navbar-container {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 1rem;
+        }
+
+        .user-navbar-content {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          padding: 10px 20px;
-          background: #222;
-          color: white;
+          height: 4rem;
         }
 
         .menu-btn {
@@ -29,15 +45,25 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
           border: none;
           color: white;
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.5rem;
+          border-radius: 0.5rem;
+          transition: all 0.3s;
         }
 
         .menu-btn:hover {
-          opacity: 0.8;
+          background-color: rgba(255, 255, 255, 0.1);
+          transform: scale(1.05);
         }
 
-        .title {
-          font-size: 18px;
+        .dashboard-title {
+          font-size: 1.5rem;
           font-weight: bold;
+          color: white;
+          margin-left: 1rem;
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
       `}</style>
     </nav>

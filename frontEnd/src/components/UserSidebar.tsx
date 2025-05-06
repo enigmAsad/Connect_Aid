@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { User, Heart, HandHeart, Settings, LogOut, X, Wallet } from "lucide-react";
 import { fetchUserProfile } from "../services/UserService";
+import { BalanceService } from "../services/BalanceService";
 
 interface SidebarProps {
   isSidebarOpen: boolean;
@@ -9,7 +10,6 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, toggleSidebar }) => {
-  const location = useLocation();
   const navigate = useNavigate();
   const [username, setUsername] = useState<string>("User");
   const [walletBalance, setWalletBalance] = useState<number>(0);
@@ -17,9 +17,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, toggleSidebar }) => {
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
+        // Fetch user profile for username
         const profile = await fetchUserProfile();
-        setUsername(profile.username || "User");
-        setWalletBalance(profile.walletBalance ?? 0); // Handles undefined cases safely
+        // Convert username to Title Case
+        const titleCaseName = profile.username 
+          ? profile.username.split(' ')
+              .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+              .join(' ') 
+          : "User";
+        setUsername(titleCaseName);
+        
+        // Fetch balance using BalanceService
+        const balance = await BalanceService.fetchBalance();
+        setWalletBalance(balance);
       } catch (error) {
         console.error("Failed to load user profile", error);
       }
@@ -102,13 +112,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, toggleSidebar }) => {
           left: -250px;
           width: 250px;
           height: 100vh;
-          background: #333;
+          background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
           color: white;
           display: flex;
           flex-direction: column;
           transition: left 0.3s ease-in-out;
           z-index: 50;
           padding: 15px;
+          box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar.open {
@@ -122,27 +133,49 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, toggleSidebar }) => {
           margin-bottom: 20px;
         }
 
+        .sidebar-header h1 {
+          font-size: 1.5rem;
+          font-weight: bold;
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
         .close-btn {
           background: none;
           border: none;
           color: white;
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.5rem;
+          border-radius: 0.5rem;
+          transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+          transform: scale(1.05);
         }
 
         .user-info {
           text-align: left;
           margin-bottom: 20px;
+          padding: 10px;
+          background-color: rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
         }
 
         .username {
           font-weight: bold;
           font-size: 18px;
+          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .wallet {
           display: flex;
           align-items: center;
           gap: 5px;
+          margin-top: 5px;
         }
 
         .nav-links {
@@ -158,10 +191,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, toggleSidebar }) => {
           text-decoration: none;
           color: white;
           cursor: pointer;
+          border-radius: 6px;
+          margin-bottom: 5px;
+          transition: all 0.2s;
         }
 
         .nav-link:hover {
-          background: #555;
+          background: rgba(255, 255, 255, 0.1);
+          transform: translateX(5px);
         }
 
         .logout-btn {
@@ -174,10 +211,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, toggleSidebar }) => {
           color: white;
           cursor: pointer;
           margin-top: 20px;
+          border-radius: 6px;
+          transition: all 0.2s;
         }
 
         .logout-btn:hover {
-          background: #555;
+          background: rgba(255, 255, 255, 0.1);
+          color: #ff6b6b;
         }
       `}</style>
     </>
