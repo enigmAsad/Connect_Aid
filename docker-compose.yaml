@@ -10,11 +10,8 @@ services:
     restart: unless-stopped
     ports:
       - "5000:5000"
-    environment:
-      - NODE_ENV=development
-      - PORT=5000
-      - MONGO_URI=${MONGO_URI}
-      - JWT_SECRET=${JWT_SECRET}
+    env_file:
+      - ./backEnd/.env
     volumes:
       - ./backEnd:/app
       - /app/node_modules
