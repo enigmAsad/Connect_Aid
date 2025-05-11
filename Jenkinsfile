@@ -27,16 +27,34 @@ pipeline {
             steps {
                 echo 'Stopping any existing containers...'
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    sh 'docker-compose down'
+                    sh 'docker-compose down --volumes --remove-orphans'
                 }
             }
         }
 
         stage('Clean Up Docker') {
             steps {
-                echo 'Cleaning up dangling Docker images to save disk space...'
+                echo 'Performing thorough Docker cleanup to free disk space...'
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    sh 'docker image prune -f'
+                    sh '''
+                    # Remove all stopped containers
+                    docker container prune -f
+                    
+                    # Remove unused images
+                    docker image prune -a -f
+                    
+                    # Remove unused volumes
+                    docker volume prune -f
+                    
+                    # Remove unused networks
+                    docker network prune -f
+                    
+                    # System prune as a final measure
+                    docker system prune -f
+                    
+                    # Check available disk space
+                    df -h
+                    '''
                 }
             }
         }
@@ -87,7 +105,7 @@ JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
         failure {
             echo 'Pipeline execution failed. Cleaning up...'
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                sh 'docker-compose down'
+                sh 'docker-compose down --volumes --remove-orphans'
             }
         }
         always {
