@@ -34,7 +34,18 @@ pipeline {
             steps {
                 echo 'Stopping any existing containers...'
                 dir("${COMPOSE_PROJECT_DIR}") {
-                    sh 'docker compose down --remove-orphans || true'
+                    catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                        sh 'docker compose down --remove-orphans'
+                    }
+                }
+            }
+        }
+        
+        stage('Clean Up Docker') {
+            steps {
+                echo 'Cleaning up dangling Docker images to save disk space...'
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                    sh 'docker image prune -f'
                 }
             }
         }
@@ -48,11 +59,19 @@ pipeline {
             }
         }
         
+        stage('Wait for Services') {
+            steps {
+                echo 'Waiting for services to be fully operational...'
+                sleep(time: 30, unit: 'SECONDS')
+            }
+        }
+        
         stage('Verify Deployment') {
             steps {
                 echo 'Verifying the deployment...'
                 dir("${COMPOSE_PROJECT_DIR}") {
                     sh 'docker compose ps'
+                    sh 'curl -s --head --fail http://localhost:80 || echo "Website not responding yet"'
                 }
             }
         }
@@ -65,7 +84,9 @@ pipeline {
         failure {
             echo 'Pipeline execution failed. The web application may not be running correctly.'
             dir("${COMPOSE_PROJECT_DIR}") {
-                sh 'docker compose down --remove-orphans || true'
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh 'docker compose down --remove-orphans'
+                }
             }
         }
         always {
