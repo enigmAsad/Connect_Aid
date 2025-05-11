@@ -2,8 +2,10 @@ import { useState, FormEvent } from 'react';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, User } from 'lucide-react';
 import api from '../api/axios';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,9 +38,8 @@ const SignUp = () => {
   
       console.log('Signup successful:', response.data);
       
-      localStorage.setItem('token', response.data.token);
-      
-      alert('Account created successfully!');
+      alert('Account created successfully! Please login with your credentials.');
+      navigate('/login');
   
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
