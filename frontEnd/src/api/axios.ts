@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+// When using the NGINX reverse proxy, we can simplify this
+// The API URL will be relative, which means it will use the same origin
+// as the frontend, and NGINX will route requests appropriately
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: {
     'Content-Type': 'application/json'
   }

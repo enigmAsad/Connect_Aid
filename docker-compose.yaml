@@ -1,6 +1,21 @@
 version: '3.8'
 
 services:
+  # Nginx service for reverse proxy
+  nginx:
+    image: nginx:latest
+    container_name: connect-aid-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - connect-aid-network
+
   # Backend service
   backend:
     build:
@@ -8,8 +23,9 @@ services:
       dockerfile: Dockerfile
     container_name: connect-aid-backend
     restart: unless-stopped
-    ports:
-      - "5000:5000"
+    # Only expose port internally
+    expose:
+      - "5000"
     env_file:
       - ./backEnd/.env
     volumes:
@@ -32,11 +48,12 @@ services:
       dockerfile: Dockerfile
     container_name: connect-aid-frontend
     restart: unless-stopped
-    ports:
-      - "5173:5173"
+    # Only expose port internally
+    expose:
+      - "5173"
     environment:
-      # Replace YOUR_EC2_PUBLIC_IP with your actual EC2 public IP or domain name
-      - VITE_API_URL=http://52.201.237.207:5000
+      # Use relative URL since nginx will handle routing
+      - VITE_API_URL=/api
     volumes:
       - ./frontEnd:/app
       - /app/node_modules
