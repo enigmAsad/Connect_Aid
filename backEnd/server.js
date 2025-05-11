@@ -7,9 +7,9 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS for localhost (Vite)
+// Enable CORS for both local development and Docker
 app.use(cors({
-  origin: 'http://localhost:5173', // ✅ No trailing slash
+  origin: ['http://localhost:5173', 'http://frontend:5173'], // Allow both local and Docker container access
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -32,10 +32,10 @@ app.use('/api/user', require('./routes/userInfo'));
 
 // Test route
 app.get('/test', (req, res) => {
-  res.json({ message: '✅ Server is running on localhost' });
+  res.json({ message: '✅ Server is running' });
 });
 
-// Start server
-app.listen(PORT, '127.0.0.1', () => {
+// Start server - bind to 0.0.0.0 instead of 127.0.0.1 to allow connections from outside the container
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
