@@ -27,7 +27,7 @@ pipeline {
             steps {
                 echo 'Stopping any existing containers...'
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    sh 'docker-compose down --remove-orphans'
+                    sh 'docker compose down --remove-orphans'
                 }
             }
         }
@@ -41,10 +41,21 @@ pipeline {
             }
         }
 
+        stage('Prepare .env File') {
+            steps {
+                echo 'Creating .env file for backend...'
+                writeFile file: 'backEnd/.env', text: '''
+MONGO_URI=mongodb+srv://root:12345@connectaid-cluster.yv9ci.mongodb.net/?retryWrites=true&w=majority&appName=ConnectAid-Cluster
+PORT=5000
+JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
+'''
+            }
+        }
+
         stage('Build and Start Containers') {
             steps {
                 echo 'Building and starting the updated stack...'
-                sh 'docker-compose up -d --build'
+                sh 'docker compose up -d --build'
             }
         }
 
@@ -58,7 +69,7 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 echo 'Verifying the deployment...'
-                sh 'docker-compose ps'
+                sh 'docker compose ps'
                 sh '''
                 if ! curl -fs http://localhost:80; then
                     echo "App not responding"
@@ -76,7 +87,7 @@ pipeline {
         failure {
             echo 'Pipeline execution failed. Cleaning up...'
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                sh 'docker-compose down --remove-orphans'
+                sh 'docker compose down --remove-orphans'
             }
         }
         always {
