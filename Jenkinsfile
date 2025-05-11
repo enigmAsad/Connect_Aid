@@ -71,16 +71,16 @@ pipeline {
 
     post {
         success {
-            echo '✅ Pipeline executed successfully! The web application is now running.'
+            echo 'Pipeline executed successfully. The web application is now running.'
         }
         failure {
-            echo '❌ Pipeline execution failed. Cleaning up...'
+            echo 'Pipeline execution failed. Cleaning up...'
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                 sh 'docker compose down --remove-orphans'
             }
         }
         always {
-            echo '📦 Pipeline execution completed.'
+            echo 'Pipeline execution completed.'
         }
     }
 }
