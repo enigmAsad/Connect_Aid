@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 
 // Enable CORS for both local development and Docker
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://frontend:5173'], // Allow both local and Docker container access
+  origin: ['http://localhost:5173', 'http://frontend:5173', 'http://52.201.237.207', 'http://52.201.237.207:5173', 'http://52.201.237.207:5000'], // Allow both local, Docker container and EC2 access
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
