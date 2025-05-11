@@ -35,6 +35,11 @@ app.get('/test', (req, res) => {
   res.json({ message: '✅ Server is running' });
 });
 
+// Health check endpoint for Docker
+app.get('/api/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Start server - bind to 0.0.0.0 instead of 127.0.0.1 to allow connections from outside the container
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
