@@ -18,7 +18,7 @@ export interface Appeal {
 
 export const createAppeal = async (appealData: FormData): Promise<Appeal> => {
   try {
-    const response = await api.post('/api/appeals', appealData, {
+    const response = await api.post('/appeals', appealData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -32,7 +32,7 @@ export const createAppeal = async (appealData: FormData): Promise<Appeal> => {
 
 export const fetchUserAppeals = async (): Promise<Appeal[]> => {
   try {
-    const response = await api.get('/api/appeals/my-appeals');
+    const response = await api.get('/appeals/my-appeals');
     return response.data;
   } catch (error) {
     console.error('Failed to fetch user appeals:', error);
@@ -42,7 +42,7 @@ export const fetchUserAppeals = async (): Promise<Appeal[]> => {
 
 export const fetchAllAppeals = async (): Promise<Appeal[]> => {
   try {
-    const response = await api.get('/api/appeals');
+    const response = await api.get('/appeals');
     return response.data;
   } catch (error) {
     console.error('Failed to fetch appeals:', error);
@@ -52,7 +52,7 @@ export const fetchAllAppeals = async (): Promise<Appeal[]> => {
 
 export const deleteAppeal = async (appealId: string): Promise<void> => {
   try {
-    await api.delete(`/api/appeals/${appealId}`);
+    await api.delete(`/appeals/${appealId}`);
   } catch (error) {
     console.error('Failed to delete appeal:', error);
     throw error;
@@ -63,7 +63,7 @@ export const fetchAppealById = async (appealId: string): Promise<Appeal> => {
   try {
     console.log(`Fetching appeal with ID: ${appealId}`);
     
-    const response = await api.get(`/api/appeals/${appealId}`);
+    const response = await api.get(`/appeals/${appealId}`);
     
     console.log('Fetch appeal response:', response.data);
     return response.data;
@@ -79,7 +79,7 @@ export const fetchAppealById = async (appealId: string): Promise<Appeal> => {
 
 export const updateAppeal = async (appealId: string, appealData: FormData): Promise<Appeal> => {
   try {
-    const response = await api.put(`/api/appeals/${appealId}`, appealData, {
+    const response = await api.put(`/appeals/${appealId}`, appealData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

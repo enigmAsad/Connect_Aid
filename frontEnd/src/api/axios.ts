@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-// When using the NGINX reverse proxy, we can simplify this
-// The API URL will be relative, which means it will use the same origin
-// as the frontend, and NGINX will route requests appropriately
+// Create axios instance with base configuration
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  // Base URL for API requests - use the current origin
+  // Since we're using a reverse proxy, all API requests should go to /api
+  baseURL: '',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -17,6 +17,14 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Make sure auth endpoints use the correct path
+    if (config.url?.includes('login') || config.url?.includes('signup')) {
+      config.url = `/api${config.url}`;
+    } else if (!config.url?.startsWith('/api') && !config.url?.startsWith('http')) {
+      config.url = `/api${config.url}`;
+    }
+    
     return config;
   },
   (error) => Promise.reject(error)

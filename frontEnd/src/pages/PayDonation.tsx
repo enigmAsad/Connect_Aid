@@ -69,7 +69,7 @@ Please top up your balance or reduce the donation amount.`);
       await BalanceService.deductBalance(donationAmount);
 
       // Update the appeal with the new donation amount
-      await api.post(`/api/donations/${id}`, { 
+      await api.post(`/donations/${id}`, { 
         amount: donationAmount 
       });
 
@@ -103,7 +103,7 @@ Please top up your balance or reduce the donation amount.`);
       <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         {/* Appeal Image */}
         <img
-          src={`http://localhost:5000${appeal.image}`}
+          src={appeal.image?.startsWith('http') ? appeal.image : appeal.image}
           alt={appeal.title}
           className="w-full h-64 object-cover"
           onError={(e) => {

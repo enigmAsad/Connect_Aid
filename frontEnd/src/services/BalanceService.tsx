@@ -9,7 +9,7 @@ export const BalanceService = {
   // Fetch user balance
   fetchBalance: async (): Promise<number> => {
     try {
-      const response = await api.get<BalanceResponse>('/api/user/balance');
+      const response = await api.get<BalanceResponse>('/user/balance');
       return response.data.balance;
     } catch (error) {
       console.error('Failed to fetch balance:', error);
@@ -20,7 +20,7 @@ export const BalanceService = {
   // Top up balance
   topUpBalance: async (amount: number): Promise<number> => {
     try {
-      const response = await api.post<BalanceResponse>('/api/user/balance/topup', { amount });
+      const response = await api.post<BalanceResponse>('/user/balance/topup', { amount });
       return response.data.balance;
     } catch (error) {
       console.error('Failed to top up balance:', error);
@@ -31,7 +31,7 @@ export const BalanceService = {
   // Deduct balance (for purchases)
   deductBalance: async (amount: number): Promise<number> => {
     try {
-      const response = await api.post<BalanceResponse>('/api/user/balance/deduct', { amount });
+      const response = await api.post<BalanceResponse>('/user/balance/deduct', { amount });
       return response.data.balance;
     } catch (error) {
       console.error('Failed to deduct balance:', error);

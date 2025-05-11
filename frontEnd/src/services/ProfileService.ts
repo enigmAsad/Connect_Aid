@@ -14,7 +14,7 @@ export interface UserProfile {
 
 export const fetchUserProfile = async (): Promise<UserProfile> => {
   try {
-    const response = await api.get('/api/user/profile');
+    const response = await api.get('/user/profile');
     return response.data;
   } catch (error) {
     console.error('Failed to fetch user profile:', error);
@@ -24,7 +24,7 @@ export const fetchUserProfile = async (): Promise<UserProfile> => {
 
 export const updateUserProfile = async (profileData: Partial<UserProfile>): Promise<UserProfile> => {
   try {
-    const response = await api.put('/api/user/profile', profileData);
+    const response = await api.put('/user/profile', profileData);
     return response.data;
   } catch (error) {
     console.error('Failed to update user profile:', error);
