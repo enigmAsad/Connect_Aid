@@ -3,10 +3,12 @@ pipeline {
     
     environment {
         COMPOSE_PROJECT_DIR = "${WORKSPACE}"
+        GITHUB_REPO = "https://github.com/yourusername/Connect_Aid.git"
+        BRANCH_NAME = "main"
     }
     
     triggers {
-        githubPush()
+        pollSCM('H/5 * * * *')
     }
     
     options {
@@ -17,7 +19,9 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo 'Checking out the latest code from GitHub...'
-                checkout scm
+                git branch: "${BRANCH_NAME}", 
+                    url: "${GITHUB_REPO}", 
+                    credentialsId: 'github-credentials'
             }
         }
         
