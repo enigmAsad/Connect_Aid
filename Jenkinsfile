@@ -27,7 +27,7 @@ pipeline {
             steps {
                 echo 'Stopping any existing containers...'
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    sh 'docker compose down --remove-orphans'
+                    sh 'docker-compose down'
                 }
             }
         }
@@ -55,7 +55,7 @@ JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
         stage('Build and Start Containers') {
             steps {
                 echo 'Building and starting the updated stack...'
-                sh 'docker compose up -d --build'
+                sh 'docker-compose up -d --build'
             }
         }
 
@@ -69,7 +69,7 @@ JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
         stage('Verify Deployment') {
             steps {
                 echo 'Verifying the deployment...'
-                sh 'docker compose ps'
+                sh 'docker-compose ps'
                 sh '''
                 if ! curl -fs http://localhost:80; then
                     echo "App not responding"
@@ -87,7 +87,7 @@ JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
         failure {
             echo 'Pipeline execution failed. Cleaning up...'
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                sh 'docker compose down --remove-orphans'
+                sh 'docker-compose down'
             }
         }
         always {
