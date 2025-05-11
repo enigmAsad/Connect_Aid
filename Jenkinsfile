@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        COMPOSE_PROJECT_DIR = '/home/ubuntu/Connect_Aid'
+        COMPOSE_PROJECT_DIR = "${WORKSPACE}"
     }
     
     triggers {
@@ -21,22 +21,11 @@ pipeline {
             }
         }
         
-        stage('Navigate to Project Directory') {
-            steps {
-                echo "Navigating to project directory: ${COMPOSE_PROJECT_DIR}"
-                dir("${COMPOSE_PROJECT_DIR}") {
-                    sh 'pwd'
-                }
-            }
-        }
-        
         stage('Stop Existing Containers') {
             steps {
                 echo 'Stopping any existing containers...'
-                dir("${COMPOSE_PROJECT_DIR}") {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                        sh 'docker compose down --remove-orphans'
-                    }
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                    sh 'docker compose down --remove-orphans'
                 }
             }
         }
@@ -53,9 +42,7 @@ pipeline {
         stage('Build and Start Containers') {
             steps {
                 echo 'Building and starting the updated stack...'
-                dir("${COMPOSE_PROJECT_DIR}") {
-                    sh 'docker compose up -d --build'
-                }
+                sh 'docker compose up -d --build'
             }
         }
         
@@ -69,10 +56,8 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 echo 'Verifying the deployment...'
-                dir("${COMPOSE_PROJECT_DIR}") {
-                    sh 'docker compose ps'
-                    sh 'curl -s --head --fail http://localhost:80 || echo "Website not responding yet"'
-                }
+                sh 'docker compose ps'
+                sh 'curl -s --head --fail http://localhost:80 || echo "Website not responding yet"'
             }
         }
     }
@@ -83,10 +68,8 @@ pipeline {
         }
         failure {
             echo 'Pipeline execution failed. The web application may not be running correctly.'
-            dir("${COMPOSE_PROJECT_DIR}") {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh 'docker compose down --remove-orphans'
-                }
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                sh 'docker compose down --remove-orphans'
             }
         }
         always {
