@@ -2,12 +2,17 @@ import axios from 'axios';
 
 // Determine the base URL based on the environment
 const getBaseUrl = () => {
+  // Use environment variable if available, otherwise fallback to defaults
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const apiPrefix = import.meta.env.VITE_API_PREFIX || '/api';
+
   // In production (Docker/EC2), use relative URL as nginx handles routing
   if (import.meta.env.PROD) {
-    return ''; // Empty string for relative URLs
+    return apiUrl || ''; // Use environment variable or empty string for relative URLs
   }
+  
   // Local development
-  return 'http://localhost:5000';
+  return apiUrl || 'http://localhost:5000';
 };
 
 // Create axios instance with base configuration
@@ -27,8 +32,9 @@ api.interceptors.request.use(
     }
     
     // Make sure all requests go to the correct API endpoint
-    if (!config.url?.startsWith('/api')) {
-      config.url = `/api${config.url}`;
+    const apiPrefix = import.meta.env.VITE_API_PREFIX || '/api';
+    if (!config.url?.startsWith(apiPrefix)) {
+      config.url = `${apiPrefix}${config.url}`;
     }
     
     return config;
