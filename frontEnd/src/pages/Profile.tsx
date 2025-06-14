@@ -7,6 +7,7 @@ const ProfilePage: React.FC = () => {
   const [editedProfile, setEditedProfile] = useState<Partial<UserProfile>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -55,6 +56,11 @@ const ProfilePage: React.FC = () => {
       const updatedProfile = await updateUserProfile(editedProfile);
       setProfile(updatedProfile);
       setIsEditing(false);
+      setSuccessMessage('Profile updated successfully!');
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
     } catch (err) {
       setError('Failed to update profile');
     }
@@ -94,6 +100,13 @@ const ProfilePage: React.FC = () => {
             Manage your personal information and preferences
           </p>
         </div>
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-4 p-4 text-sm text-green-600 bg-green-50 rounded-lg">
+            {successMessage}
+          </div>
+        )}
 
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <div className="flex justify-between items-center mb-6">
