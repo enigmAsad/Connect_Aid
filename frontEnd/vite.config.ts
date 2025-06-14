@@ -22,5 +22,11 @@ export default defineConfig({
       'react': resolve(__dirname, 'node_modules/react'),
       'react-dom': resolve(__dirname, 'node_modules/react-dom')
     }
+  },
+  server: {
+    port: 5173
+  },
+  preview: {
+    port: 5173
   }
 })
