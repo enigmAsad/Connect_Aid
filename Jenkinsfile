@@ -7,6 +7,14 @@ pipeline {
         BRANCH_NAME = "main"
         SELENIUM_HOST = "selenium"
         SELENIUM_PORT = "4444"
+        DOMAIN_NAME = "${DOMAIN_NAME:-localhost}"
+        BACKEND_PORT = "5000"
+        FRONTEND_PORT = "5173"
+        NGINX_PORT = "80"
+    }
+
+    parameters {
+        string(name: 'DOMAIN_NAME', defaultValue: '', description: 'Domain name or EC2 public IP')
     }
 
     triggers {
@@ -69,6 +77,7 @@ pipeline {
 MONGO_URI=mongodb+srv://root:12345@connectaid-cluster.yv9ci.mongodb.net/?retryWrites=true&w=majority&appName=ConnectAid-Cluster
 PORT=5000
 JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
+DOMAIN_NAME=${DOMAIN_NAME}
 '''
             }
         }
@@ -87,7 +96,7 @@ JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
                     // Wait for backend health check
                     sh '''
                     for i in {1..30}; do
-                        if curl -fs http://localhost:5000/test; then
+                        if curl -fs http://${DOMAIN_NAME}:${BACKEND_PORT}/test; then
                             echo "Backend is ready"
                             break
                         fi
@@ -102,7 +111,7 @@ JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
                     // Wait for frontend
                     sh '''
                     for i in {1..30}; do
-                        if curl -fs http://localhost:5173; then
+                        if curl -fs http://${DOMAIN_NAME}:${FRONTEND_PORT}; then
                             echo "Frontend is ready"
                             break
                         fi
@@ -117,7 +126,7 @@ JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
                     // Wait for Selenium
                     sh '''
                     for i in {1..30}; do
-                        if curl -fs http://localhost:4444/status; then
+                        if curl -fs http://${DOMAIN_NAME}:${SELENIUM_PORT}/status; then
                             echo "Selenium is ready"
                             break
                         fi
@@ -171,7 +180,7 @@ JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
                 echo 'Verifying the deployment...'
                 sh 'docker-compose ps'
                 sh '''
-                if ! curl -fs http://localhost:80; then
+                if ! curl -fs http://${DOMAIN_NAME}:${NGINX_PORT}; then
                     echo "App not responding"
                     exit 1
                 fi
@@ -185,7 +194,13 @@ JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
             echo 'Pipeline executed successfully. The web application is now running.'
             emailext (
                 subject: "Pipeline Successful: ${currentBuild.fullDisplayName}",
-                body: "Your pipeline has completed successfully. View the results at ${env.BUILD_URL}",
+                body: """
+                Pipeline Successful: ${currentBuild.fullDisplayName}
+                Domain: ${DOMAIN_NAME}
+                Backend URL: http://${DOMAIN_NAME}:${BACKEND_PORT}
+                Frontend URL: http://${DOMAIN_NAME}:${FRONTEND_PORT}
+                View the results at ${env.BUILD_URL}
+                """,
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']]
             )
         }
@@ -196,7 +211,11 @@ JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
             }
             emailext (
                 subject: "Pipeline Failed: ${currentBuild.fullDisplayName}",
-                body: "Your pipeline has failed. View the results at ${env.BUILD_URL}",
+                body: """
+                Pipeline Failed: ${currentBuild.fullDisplayName}
+                Domain: ${DOMAIN_NAME}
+                View the results at ${env.BUILD_URL}
+                """,
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']]
             )
         }
