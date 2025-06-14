@@ -68,6 +68,48 @@ services:
     networks:
       - connect-aid-network
 
+  # Selenium test service
+  selenium:
+    image: selenium/standalone-chrome:latest
+    container_name: connect-aid-selenium
+    shm_size: '2gb'
+    environment:
+      - SE_NODE_MAX_SESSIONS=4
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+      - SE_VNC_NO_PASSWORD=1
+    ports:
+      - "4444:4444"
+      - "7900:7900"
+    networks:
+      - connect-aid-network
+    depends_on:
+      - frontend
+      - backend
+
+  # Test runner service
+  test-runner:
+    build:
+      context: .
+      dockerfile: tests/selenium/Dockerfile
+    container_name: connect-aid-test-runner
+    environment:
+      - SELENIUM_HOST=selenium
+      - SELENIUM_PORT=4444
+      - FRONTEND_URL=http://frontend:5173
+      - BACKEND_URL=http://backend:5000
+      - CI=true
+      - TEST_BASE_URL=http://localhost:80
+    volumes:
+      - ./tests:/app/tests
+      - /app/node_modules
+      - ./test-results:/app/test-results
+    networks:
+      - connect-aid-network
+    depends_on:
+      - selenium
+      - frontend
+      - backend
+
 networks:
   connect-aid-network:
     driver: bridge
