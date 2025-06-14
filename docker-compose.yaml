@@ -28,6 +28,10 @@ services:
       - "5000"
     env_file:
       - ./backEnd/.env
+    environment:
+      - CURRENT_HOST=${CURRENT_HOST:-backend}
+      - FRONTEND_PORT=${FRONTEND_PORT:-5173}
+      - ADDITIONAL_ORIGINS=${ADDITIONAL_ORIGINS:-}
     volumes:
       - ./backEnd:/app
       - /app/node_modules
@@ -35,7 +39,7 @@ services:
     networks:
       - connect-aid-network
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:5000/test"]
+      test: ["CMD", "wget", "-q", "--spider", "http://backend:5000/test"]
       interval: 30s
       timeout: 20s
       retries: 5
@@ -54,6 +58,7 @@ services:
     environment:
       # Use relative URL since nginx will handle routing
       - VITE_API_URL=/api
+      - VITE_CURRENT_HOST=${CURRENT_HOST:-frontend}
     volumes:
       - ./frontEnd:/app
       - /app/node_modules

@@ -7,11 +7,36 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS for both local development and Docker
+// Get the current host from environment or use default
+const CURRENT_HOST = process.env.CURRENT_HOST || 'localhost';
+const FRONTEND_PORT = process.env.FRONTEND_PORT || '5173';
+
+// Define allowed origins dynamically
+const allowedOrigins = [
+  `http://${CURRENT_HOST}:${FRONTEND_PORT}`,  // Local frontend
+  `http://${CURRENT_HOST}:5000`,              // Local backend
+  'http://frontend:5173',                     // Docker frontend
+  'http://backend:5000',                      // Docker backend
+  // Add any additional origins from environment variable
+  ...(process.env.ADDITIONAL_ORIGINS ? process.env.ADDITIONAL_ORIGINS.split(',') : [])
+];
+
+// Enable CORS with dynamic origin
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://frontend:5173', 'http://52.201.237.207', 'http://52.201.237.207:5173', 'http://52.201.237.207:5000'], // Allow both local, Docker container and EC2 access
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      console.log('CORS blocked request from:', origin);
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 // Middleware
@@ -32,7 +57,11 @@ app.use('/api/user', require('./routes/userInfo'));
 
 // Test route
 app.get('/test', (req, res) => {
-  res.json({ message: '✅ Server is running' });
+  res.json({ 
+    message: '✅ Server is running',
+    host: CURRENT_HOST,
+    allowedOrigins: allowedOrigins
+  });
 });
 
 // Health check endpoint for Docker
@@ -42,5 +71,6 @@ app.get('/api/health', (req, res) => {
 
 // Start server - bind to 0.0.0.0 instead of 127.0.0.1 to allow connections from outside the container
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://${CURRENT_HOST}:${PORT}`);
+  console.log('Allowed origins:', allowedOrigins);
 });

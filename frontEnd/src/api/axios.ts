@@ -1,10 +1,18 @@
 import axios from 'axios';
 
+// Determine the base URL based on the environment
+const getBaseUrl = () => {
+  // In production (Docker/EC2), use relative URL as nginx handles routing
+  if (import.meta.env.PROD) {
+    return ''; // Empty string for relative URLs
+  }
+  // Local development
+  return 'http://localhost:5000';
+};
+
 // Create axios instance with base configuration
 const api = axios.create({
-  // Base URL for API requests - use the current origin
-  // Since we're using a reverse proxy, all API requests should go to /api
-  baseURL: '',
+  baseURL: getBaseUrl(),
   headers: {
     'Content-Type': 'application/json'
   }
@@ -18,10 +26,8 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Make sure auth endpoints use the correct path
-    if (config.url?.includes('login') || config.url?.includes('signup')) {
-      config.url = `/api${config.url}`;
-    } else if (!config.url?.startsWith('/api') && !config.url?.startsWith('http')) {
+    // Make sure all requests go to the correct API endpoint
+    if (!config.url?.startsWith('/api')) {
       config.url = `/api${config.url}`;
     }
     
