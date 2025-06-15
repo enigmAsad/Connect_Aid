@@ -19,6 +19,10 @@ RUN apk add --no-cache \
 ENV CHROME_BIN=/usr/bin/chromium-browser
 ENV CHROME_PATH=/usr/lib/chromium/
 
+# Set test environment variables
+ENV TEST_BASE_URL=http://frontend:80
+ENV CI=true
+
 # Install ChromeDriver in the correct location
 RUN mkdir -p /root/.cache/selenium/chromedriver/linux64/136.0.7103.113 && \
     wget -q "https://storage.googleapis.com/chrome-for-testing-public/136.0.7103.113/linux64/chromedriver-linux64.zip" && \

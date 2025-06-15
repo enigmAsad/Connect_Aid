@@ -93,6 +93,31 @@ VITE_API_URL=http://${SERVER_IP}/api
                 '''
             }
         }
+
+        stage('Run Selenium Tests') {
+            steps {
+                echo 'Running Selenium tests...'
+                sh '''
+                    # Wait for frontend to be fully ready
+                    echo "Waiting for frontend to be fully ready..."
+                    sleep 30
+                    
+                    # Run selenium tests
+                    echo "Starting Selenium tests..."
+                    docker-compose up selenium-tests
+                    
+                    # Check test results
+                    TEST_EXIT_CODE=$(docker inspect connect-aid-selenium-tests --format='{{.State.ExitCode}}')
+                    if [ "$TEST_EXIT_CODE" -ne 0 ]; then
+                        echo "Selenium tests failed with exit code $TEST_EXIT_CODE"
+                        docker logs connect-aid-selenium-tests
+                        exit 1
+                    fi
+                    
+                    echo "Selenium tests completed successfully"
+                '''
+            }
+        }
     }
 
     post {
@@ -110,6 +135,8 @@ VITE_API_URL=http://${SERVER_IP}/api
                     docker logs connect-aid-backend
                     echo "=== Frontend Logs ==="
                     docker logs connect-aid-frontend
+                    echo "=== Selenium Tests Logs ==="
+                    docker logs connect-aid-selenium-tests
                 fi
             '''
         }

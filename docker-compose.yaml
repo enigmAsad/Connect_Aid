@@ -67,6 +67,23 @@ services:
     networks:
       - connect-aid-network
 
+  # Selenium tests service
+  selenium-tests:
+    build:
+      context: ./tests/selenium
+      dockerfile: Dockerfile
+    container_name: connect-aid-selenium-tests
+    environment:
+      - TEST_BASE_URL=http://frontend:80
+      - CI=true
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    networks:
+      - connect-aid-network
+
 networks:
   connect-aid-network:
     driver: bridge
