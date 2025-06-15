@@ -23,13 +23,23 @@ ENV CHROME_PATH=/usr/lib/chromium/
 ENV TEST_BASE_URL=http://frontend:80
 ENV CI=true
 
-# Install ChromeDriver in the correct location
-RUN mkdir -p /root/.cache/selenium/chromedriver/linux64/136.0.7103.113 && \
-    wget -q "https://storage.googleapis.com/chrome-for-testing-public/136.0.7103.113/linux64/chromedriver-linux64.zip" && \
-    unzip chromedriver-linux64.zip && \
-    mv chromedriver-linux64/chromedriver /root/.cache/selenium/chromedriver/linux64/136.0.7103.113/chromedriver && \
-    chmod +x /root/.cache/selenium/chromedriver/linux64/136.0.7103.113/chromedriver && \
-    rm -rf chromedriver-linux64.zip chromedriver-linux64
+# Get exact Chrome version and install matching ChromeDriver
+RUN CHROME_VERSION=$(chromium-browser --version | awk '{print $2}') && \
+    echo "Chrome version: $CHROME_VERSION" && \
+    CHROME_MAJOR_VERSION=$(echo $CHROME_VERSION | cut -d'.' -f1) && \
+    echo "Chrome major version: $CHROME_MAJOR_VERSION" && \
+    CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION") && \
+    echo "ChromeDriver version: $CHROMEDRIVER_VERSION" && \
+    wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" && \
+    unzip chromedriver_linux64.zip && \
+    mv chromedriver /usr/local/bin/ && \
+    chmod +x /usr/local/bin/chromedriver && \
+    rm chromedriver_linux64.zip && \
+    # Verify versions match
+    echo "Verifying ChromeDriver version..." && \
+    chromedriver --version && \
+    echo "Verifying Chrome version..." && \
+    chromium-browser --version
 
 # Copy package files
 COPY package*.json ./
