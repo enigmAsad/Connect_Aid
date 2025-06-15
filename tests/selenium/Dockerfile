@@ -19,10 +19,8 @@ RUN apk add --no-cache \
 ENV CHROME_BIN=/usr/bin/chromium-browser
 ENV CHROME_PATH=/usr/lib/chromium/
 
-# Install ChromeDriver
-RUN CHROME_VERSION=$(chromium-browser --version | awk '{print $2}' | cut -d'.' -f1) && \
-    echo "Chrome version: $CHROME_VERSION" && \
-    mkdir -p /root/.cache/selenium/chromedriver/linux64/136.0.7103.113 && \
+# Install ChromeDriver in the correct location
+RUN mkdir -p /root/.cache/selenium/chromedriver/linux64/136.0.7103.113 && \
     wget -q "https://storage.googleapis.com/chrome-for-testing-public/136.0.7103.113/linux64/chromedriver-linux64.zip" && \
     unzip chromedriver-linux64.zip && \
     mv chromedriver-linux64/chromedriver /root/.cache/selenium/chromedriver/linux64/136.0.7103.113/chromedriver && \
