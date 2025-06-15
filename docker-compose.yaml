@@ -49,11 +49,10 @@ services:
       context: ./frontEnd
       dockerfile: Dockerfile
     container_name: connect-aid-frontend
-    ports:
-      - "5173:5173"
     environment:
       - VITE_API_URL=http://backend:5000
       - NODE_ENV=production
+      - HOST=0.0.0.0
     depends_on:
       backend:
         condition: service_healthy
