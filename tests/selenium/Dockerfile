@@ -15,15 +15,15 @@ RUN apk add --no-cache \
     unzip \
     curl
 
-# Install ChromeDriver
+# Install ChromeDriver with specific version
 RUN CHROME_VERSION=$(chromium-browser --version | awk '{print $2}' | cut -d'.' -f1) && \
     echo "Detected Chrome version: $CHROME_VERSION" && \
-    # Use Chrome for Testing (CfT) instead of ChromeDriver
-    wget -q "https://storage.googleapis.com/chrome-for-testing-public/stable/linux64/chrome-linux64.zip" && \
-    unzip chrome-linux64.zip && \
-    mv chrome-linux64/chromedriver /usr/local/bin/ && \
+    CHROMEDRIVER_VERSION="114.0.5735.90" && \
+    wget -q "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip" && \
+    unzip chromedriver_linux64.zip && \
+    mv chromedriver /usr/local/bin/ && \
     chmod +x /usr/local/bin/chromedriver && \
-    rm -rf chrome-linux64.zip chrome-linux64 && \
+    rm -rf chromedriver_linux64.zip && \
     echo "Verifying ChromeDriver version..." && \
     chromedriver --version && \
     echo "Verifying Chrome version..." && \
