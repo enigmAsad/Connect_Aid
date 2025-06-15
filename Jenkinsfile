@@ -194,8 +194,8 @@ VITE_NODE_ENV=production
                         # Create test results directory
                         mkdir -p test-results
                         
-                        # Run all test files with increased timeout
-                        docker-compose run --rm test-runner npm test || true
+                        # Run all test files with increased timeout and proper reporting
+                        docker-compose run --rm test-runner npm test -- --reporter mocha-junit-reporter --reporter-options mochaFile=./test-results/junit.xml || true
                         
                         # Check if test results exist
                         if [ -d "test-results" ] && [ "$(ls -A test-results)" ]; then
@@ -216,7 +216,7 @@ VITE_NODE_ENV=production
                     // Archive test results
                     archiveArtifacts artifacts: 'test-results/**/*', allowEmptyArchive: true
                     // Publish test results
-                    junit 'test-results/**/*.xml'
+                    junit 'test-results/junit.xml'
                 }
             }
         }
