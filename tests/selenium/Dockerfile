@@ -20,13 +20,16 @@ RUN CHROMEDRIVER_VERSION="114.0.5735.90" && \
     echo "Installing ChromeDriver version: $CHROMEDRIVER_VERSION" && \
     wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" && \
     unzip chromedriver_linux64.zip && \
-    mv chromedriver /usr/local/bin/chromedriver && \
+    mkdir -p /usr/local/bin && \
+    mv chromedriver /usr/local/bin/ && \
     chmod +x /usr/local/bin/chromedriver && \
     rm chromedriver_linux64.zip && \
     echo "Verifying ChromeDriver version..." && \
-    chromedriver --version && \
+    /usr/local/bin/chromedriver --version && \
     echo "Verifying Chrome version..." && \
-    chromium-browser --version
+    chromium-browser --version && \
+    echo "Verifying ChromeDriver path..." && \
+    which chromedriver
 
 # Copy package files
 COPY package*.json ./
