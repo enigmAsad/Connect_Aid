@@ -1,14 +1,6 @@
-const { Builder, By, until } = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
+const { By, until } = require('selenium-webdriver');
 const assert = require('assert');
-
-// Get the base URL from environment or use default
-const getBaseUrl = () => {
-  if (process.env.CI) {
-    return process.env.TEST_BASE_URL || 'http://localhost:80';
-  }
-  return process.env.TEST_BASE_URL || 'http://localhost:5173';
-};
+const { createDriver, getBaseUrl } = require('./selenium.config');
 
 // Test user credentials
 const TEST_USER = {
@@ -20,26 +12,14 @@ describe('Raise Page Tests', () => {
   let driver;
 
   before(async () => {
-    // Setup Chrome options
-    const options = new chrome.Options();
-    options.addArguments('--headless');
-    options.addArguments('--no-sandbox');
-    options.addArguments('--disable-dev-shm-usage');
-    
-    if (process.env.CI) {
-      options.addArguments('--disable-gpu');
-      options.addArguments('--window-size=1920,1080');
-    }
-
-    // Initialize the driver
-    driver = await new Builder()
-      .forBrowser('chrome')
-      .setChromeOptions(options)
-      .build();
+    // Initialize the driver using shared config
+    driver = await createDriver();
   });
 
   after(async () => {
-    await driver.quit();
+    if (driver) {
+      await driver.quit();
+    }
   });
 
   // Helper function to login
