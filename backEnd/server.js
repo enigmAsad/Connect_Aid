@@ -67,9 +67,10 @@ app.get('/test', (req, res) => {
 // Health check endpoint for Docker
 app.get('/api/health', (req, res) => {
   try {
+    console.log('Health check requested');
     // Check MongoDB connection
     if (mongoose.connection.readyState !== 1) {
-      console.error('MongoDB connection not ready');
+      console.error('MongoDB connection not ready, state:', mongoose.connection.readyState);
       return res.status(503).json({
         status: 'error',
         message: 'Database connection not ready',
@@ -79,6 +80,7 @@ app.get('/api/health', (req, res) => {
       });
     }
 
+    console.log('Health check passed');
     res.status(200).json({
       status: 'ok',
       message: 'Server is healthy',
@@ -98,8 +100,9 @@ app.get('/api/health', (req, res) => {
   }
 });
 
-// Start server - bind to 0.0.0.0 instead of 127.0.0.1 to allow connections from outside the container
+// Start server - bind to 0.0.0.0 to allow connections from outside the container
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on http://${CURRENT_HOST}:${PORT}`);
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
+  console.log(`External URL: http://${CURRENT_HOST}:${PORT}`);
   console.log('Allowed origins:', allowedOrigins);
 });
