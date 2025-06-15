@@ -41,7 +41,7 @@ NODE_ENV=production
 PORT=5000
 CURRENT_HOST=${SERVER_IP}
 FRONTEND_PORT=80
-ADDITIONAL_ORIGINS=http://${SERVER_IP},http://${SERVER_IP}:80
+ADDITIONAL_ORIGINS=http://${SERVER_IP},http://${SERVER_IP}:80,http://nginx,http://nginx:80
 MONGO_URI=mongodb+srv://root:12345@connectaid-cluster.yv9ci.mongodb.net/?retryWrites=true&w=majority&appName=ConnectAid-Cluster
 JWT_SECRET=9b773c7c41a6c77042443a60c24477af6003c6108422540d99ddd04f23ed26206a7739d50586227e8066b8894d112d00a1557438b442815bc3c246cd7b8e7c95
 JWT_EXPIRE=24h
