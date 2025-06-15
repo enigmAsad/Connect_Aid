@@ -101,7 +101,7 @@ VITE_API_URL=/api
                     try {
                         // Run Selenium tests using the testing profile
                         sh '''
-                            echo "🧪 Setting up E2E Test Environment..."
+                            echo "Setting up E2E Test Environment..."
                             
                             # Create test results directory
                             mkdir -p tests/selenium/test-results tests/selenium/screenshots
@@ -110,14 +110,14 @@ VITE_API_URL=/api
                             export TEST_BASE_URL=http://nginx:80
                             export CI=true
                             
-                            echo "🚀 Starting Selenium test container..."
+                            echo "Starting Selenium test container..."
                             ${DOCKER_COMPOSE} --profile testing up --build --abort-on-container-exit selenium-tests
                         '''
                         
-                        echo "✅ E2E Tests completed successfully!"
+                        echo "E2E Tests completed successfully!"
                         
                     } catch (Exception e) {
-                        echo "❌ E2E Tests failed: ${e.getMessage()}"
+                        echo "E2E Tests failed: ${e.getMessage()}"
                         
                         // Show test container logs for debugging
                         sh '''
@@ -144,7 +144,7 @@ VITE_API_URL=/api
                     
                     // Cleanup test container only
                     sh '''
-                        echo "🧹 Cleaning up test containers..."
+                        echo "Cleaning up test containers..."
                         docker stop connect-aid-selenium-tests || true
                         docker rm connect-aid-selenium-tests || true
                     '''
@@ -186,17 +186,17 @@ VITE_API_URL=/api
         }
         
         success {
-            echo '🎉 Deployment and E2E Tests completed successfully!'
+            echo 'Deployment and E2E Tests completed successfully!'
             // You can add notifications here (Slack, email, etc.)
         }
         
         unstable {
-            echo '⚠️ Deployment successful but E2E tests had issues. Check test results.'
+            echo 'Deployment successful but E2E tests had issues. Check test results.'
             // You can add specific notifications for test failures
         }
         
         failure {
-            echo '❌ Pipeline failed. Check logs for details.'
+            echo 'Pipeline failed. Check logs for details.'
             script {
                 try {
                     sh '''
