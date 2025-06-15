@@ -53,7 +53,7 @@ services:
     container_name: connect-aid-frontend
     environment:
       - NODE_ENV=production
-      - VITE_API_URL=
+      - VITE_API_URL=/api
     depends_on:
       backend:
         condition: service_healthy
