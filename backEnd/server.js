@@ -68,6 +68,13 @@ app.get('/test', (req, res) => {
 app.get('/api/health', (req, res) => {
   try {
     console.log('Health check requested');
+    console.log('MongoDB connection state:', mongoose.connection.readyState);
+    console.log('Environment variables:', {
+      PORT: process.env.PORT,
+      NODE_ENV: process.env.NODE_ENV,
+      MONGO_URI: process.env.MONGO_URI ? 'Set' : 'Not set'
+    });
+
     // Check MongoDB connection
     if (mongoose.connection.readyState !== 1) {
       console.error('MongoDB connection not ready, state:', mongoose.connection.readyState);
@@ -75,7 +82,12 @@ app.get('/api/health', (req, res) => {
         status: 'error',
         message: 'Database connection not ready',
         details: {
-          mongodb: mongoose.connection.readyState
+          mongodb: mongoose.connection.readyState,
+          env: {
+            PORT: process.env.PORT,
+            NODE_ENV: process.env.NODE_ENV,
+            MONGO_URI: process.env.MONGO_URI ? 'Set' : 'Not set'
+          }
         }
       });
     }
@@ -87,7 +99,11 @@ app.get('/api/health', (req, res) => {
       details: {
         mongodb: 'connected',
         uptime: process.uptime(),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        env: {
+          PORT: process.env.PORT,
+          NODE_ENV: process.env.NODE_ENV
+        }
       }
     });
   } catch (error) {
@@ -95,7 +111,8 @@ app.get('/api/health', (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Health check failed',
-      error: error.message
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });

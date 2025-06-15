@@ -98,6 +98,22 @@ VITE_API_URL=http://${DOMAIN_NAME}:${BACKEND_PORT}
 VITE_API_PREFIX=/api
 VITE_NODE_ENV=production
 """
+                
+                // Verify environment files exist
+                sh '''
+                if [ ! -f "backEnd/.env" ]; then
+                    echo "Error: backEnd/.env file not created"
+                    exit 1
+                fi
+                if [ ! -f "frontEnd/.env" ]; then
+                    echo "Error: frontEnd/.env file not created"
+                    exit 1
+                fi
+                echo "Environment files created successfully"
+                '''
+                
+                // Add a small delay to ensure files are written
+                sleep 5
             }
         }
 
