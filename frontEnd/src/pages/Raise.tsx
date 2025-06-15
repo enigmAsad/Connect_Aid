@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchUserAppeals, deleteAppeal } from '../services/AppealService';
+import { fetchMyAppeals, deleteAppeal } from '../services/AppealService';
 import { Appeal } from '../services/AppealService';
 import { Trash2, Edit } from 'lucide-react';
 
@@ -16,7 +16,7 @@ const Raise: React.FC = () => {
     const loadAppeals = async () => {
       try {
         setIsLoading(true);
-        const userAppeals = await fetchUserAppeals();
+        const userAppeals = await fetchMyAppeals();
         setAppeals(userAppeals);
         setIsLoading(false);
       } catch (err) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchUserProfile, updateUserProfile, UserProfile } from '../services/ProfileService';
+import { fetchProfile, updateProfile, UserProfile } from '../services/ProfileService';
 
 const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -12,7 +12,7 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const userData = await fetchUserProfile();
+        const userData = await fetchProfile();
         setProfile(userData);
         setLoading(false);
       } catch (err) {
@@ -53,7 +53,7 @@ const ProfilePage: React.FC = () => {
 
   const handleSaveProfile = async () => {
     try {
-      const updatedProfile = await updateUserProfile(editedProfile);
+      const updatedProfile = await updateProfile(editedProfile);
       setProfile(updatedProfile);
       setIsEditing(false);
       setSuccessMessage('Profile updated successfully!');
