@@ -5,6 +5,7 @@ WORKDIR /app
 # Install system dependencies in a single layer (following backend pattern)
 RUN apk add --no-cache \
     chromium \
+    chromium-chromedriver \
     nss \
     freetype \
     freetype-dev \
@@ -15,11 +16,12 @@ RUN apk add --no-cache \
     curl \
     bash
 
-# Set Chrome environment variables for Selenium
+# Set Chrome and ChromeDriver environment variables for Selenium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser \
     CHROME_BIN=/usr/bin/chromium-browser \
-    CHROME_PATH=/usr/lib/chromium/
+    CHROME_PATH=/usr/lib/chromium/ \
+    CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
 # Copy package files first (following backend/frontend pattern)
 COPY package*.json ./
@@ -35,6 +37,9 @@ RUN chmod +x run-tests.sh
 
 # Create directory for test results and screenshots
 RUN mkdir -p test-results screenshots
+
+# Verify Chrome and ChromeDriver installation
+RUN chromium-browser --version && chromedriver --version
 
 # Health check to ensure Chrome is working
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

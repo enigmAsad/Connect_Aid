@@ -17,6 +17,17 @@ echo "📋 Test Configuration:"
 echo "  Base URL: $TEST_BASE_URL"
 echo "  CI Mode: $CI"
 echo "  Chrome Version: $(chromium-browser --version)"
+echo "  ChromeDriver Version: $(chromedriver --version)"
+
+# Verify ChromeDriver can start
+echo "🔧 Verifying ChromeDriver setup..."
+chromedriver --version
+if [ $? -eq 0 ]; then
+    echo "✅ ChromeDriver is properly installed"
+else
+    echo "❌ ChromeDriver verification failed"
+    exit 1
+fi
 
 # Create results directory
 mkdir -p test-results screenshots
@@ -27,6 +38,7 @@ cleanup() {
     # Kill any remaining Chrome processes
     pkill -f chromium || true
     pkill -f chrome || true
+    pkill -f chromedriver || true
 }
 
 # Set trap for cleanup
