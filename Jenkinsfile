@@ -3,22 +3,22 @@ pipeline {
 
     environment {
         COMPOSE_PROJECT_DIR = "${WORKSPACE}"
-        GITHUB_REPO = "https://github.com/FrozenEnigma51051/Connect_Aid.git"
+        GITHUB_REPO = "https://github.com/enigmAsad/Connect_Aid.git"
         BRANCH_NAME = "main"
         SELENIUM_HOST = "selenium"
         SELENIUM_PORT = "4444"
-        DOMAIN_NAME = "${DOMAIN_NAME:-localhost}"
+        DOMAIN_NAME = "52.55.93.175"
         BACKEND_PORT = "5000"
         FRONTEND_PORT = "5173"
         NGINX_PORT = "80"
     }
 
     parameters {
-        string(name: 'DOMAIN_NAME', defaultValue: '', description: 'Domain name or EC2 public IP')
+        string(name: 'DOMAIN_NAME', defaultValue: '52.55.93.175', description: 'Domain name or EC2 public IP')
     }
 
     triggers {
-        githubPush()
+        pollSCM('H/5 * * * *')
     }
 
     options {
