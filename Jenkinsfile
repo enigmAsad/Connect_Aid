@@ -110,16 +110,22 @@ VITE_API_URL=http://backend:5000
                 '''
             }
         }
+
+        stage('Cleanup') {
+            steps {
+                echo 'Cleaning up workspace...'
+                sh '''
+                    # Clean up workspace with proper permissions
+                    sudo rm -rf * || true
+                    sudo rm -rf .* || true
+                '''
+            }
+        }
     }
 
     post {
         always {
             echo 'Pipeline execution completed.'
-            sh '''
-                # Clean up workspace with proper permissions
-                sudo rm -rf * || true
-                sudo rm -rf .* || true
-            '''
         }
     }
 }
