@@ -6,13 +6,22 @@ pipeline {
     }
 
     stages {
+        stage('Stop Existing Containers') {
+            steps {
+                echo 'Stopping any existing containers...'
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                    sh "${DOCKER_COMPOSE} down --volumes --remove-orphans"
+                }
+            }
+        }
+
         stage('Clean Workspace') {
             steps {
                 echo 'Cleaning workspace...'
                 sh '''
-                    # Try to clean up with sudo if needed
-                    sudo rm -rf * || true
-                    sudo rm -rf .* || true
+                    # Then try to clean up
+                    rm -rf * || true
+                    rm -rf .* || true
                 '''
             }
         }
@@ -21,15 +30,6 @@ pipeline {
             steps {
                 echo 'Checking out the latest code from GitHub...'
                 checkout scm
-            }
-        }
-
-        stage('Stop Existing Containers') {
-            steps {
-                echo 'Stopping any existing containers...'
-                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    sh "${DOCKER_COMPOSE} down --volumes --remove-orphans"
-                }
             }
         }
 
