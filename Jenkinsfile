@@ -112,17 +112,19 @@ VITE_NODE_ENV=production
             steps {
                 echo 'Waiting for services to be fully operational...'
                 script {
-                    // Wait for backend health check
+                    // Wait for backend health check with better error handling
                     sh '''
                     for i in $(seq 1 30); do
-                        if curl -fs http://${DOMAIN_NAME}:${BACKEND_PORT}/test; then
+                        if curl -fs http://${DOMAIN_NAME}:${BACKEND_PORT}/api/health; then
                             echo "Backend is ready"
                             break
                         fi
                         if [ $i -eq 30 ]; then
-                            echo "Backend failed to start"
+                            echo "Backend failed to start. Checking logs..."
+                            docker logs connect-aid-backend
                             exit 1
                         fi
+                        echo "Waiting for backend to be ready... (attempt $i/30)"
                         sleep 2
                     done
                     '''
@@ -135,9 +137,11 @@ VITE_NODE_ENV=production
                             break
                         fi
                         if [ $i -eq 30 ]; then
-                            echo "Frontend failed to start"
+                            echo "Frontend failed to start. Checking logs..."
+                            docker logs connect-aid-frontend
                             exit 1
                         fi
+                        echo "Waiting for frontend to be ready... (attempt $i/30)"
                         sleep 2
                     done
                     '''
@@ -150,9 +154,11 @@ VITE_NODE_ENV=production
                             break
                         fi
                         if [ $i -eq 30 ]; then
-                            echo "Selenium failed to start"
+                            echo "Selenium failed to start. Checking logs..."
+                            docker logs connect-aid-selenium
                             exit 1
                         fi
+                        echo "Waiting for Selenium to be ready... (attempt $i/30)"
                         sleep 2
                     done
                     '''
