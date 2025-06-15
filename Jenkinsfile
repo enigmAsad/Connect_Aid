@@ -115,7 +115,7 @@ VITE_NODE_ENV=production
                     // Wait for backend health check with better error handling
                     sh '''
                     for i in $(seq 1 30); do
-                        if curl -fs http://backend:${BACKEND_PORT}/api/health; then
+                        if curl -fs http://${DOMAIN_NAME}:${BACKEND_PORT}/api/health; then
                             echo "Backend is ready"
                             break
                         fi
@@ -132,7 +132,7 @@ VITE_NODE_ENV=production
                     // Wait for frontend
                     sh '''
                     for i in $(seq 1 30); do
-                        if curl -fs http://frontend:${FRONTEND_PORT}; then
+                        if curl -fs http://${DOMAIN_NAME}:${FRONTEND_PORT}; then
                             echo "Frontend is ready"
                             break
                         fi
@@ -149,7 +149,7 @@ VITE_NODE_ENV=production
                     // Wait for Selenium
                     sh '''
                     for i in $(seq 1 30); do
-                        if curl -fs http://selenium:${SELENIUM_PORT}/status; then
+                        if curl -fs http://${DOMAIN_NAME}:${SELENIUM_PORT}/status; then
                             echo "Selenium is ready"
                             break
                         fi
