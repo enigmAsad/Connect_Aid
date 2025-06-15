@@ -107,7 +107,7 @@ VITE_API_URL=http://${SERVER_IP}/api
                             mkdir -p tests/selenium/test-results tests/selenium/screenshots
                             
                             # Set test environment variables
-                            export TEST_BASE_URL=http://localhost:80
+                            export TEST_BASE_URL=http://nginx:80
                             export CI=true
                             
                             echo "🚀 Starting Selenium test container..."
@@ -133,13 +133,20 @@ VITE_API_URL=http://${SERVER_IP}/api
             post {
                 always {
                     // Archive test results and screenshots
-                    archiveArtifacts artifacts: 'tests/selenium/test-results/**/*', allowEmptyArchive: true
-                    archiveArtifacts artifacts: 'tests/selenium/screenshots/**/*', allowEmptyArchive: true
+                    script {
+                        try {
+                            archiveArtifacts artifacts: 'tests/selenium/test-results/**/*', allowEmptyArchive: true
+                            archiveArtifacts artifacts: 'tests/selenium/screenshots/**/*', allowEmptyArchive: true
+                        } catch (Exception e) {
+                            echo "Note: No test artifacts to archive"
+                        }
+                    }
                     
-                    // Cleanup test container
+                    // Cleanup test container only
                     sh '''
                         echo "🧹 Cleaning up test containers..."
-                        ${DOCKER_COMPOSE} --profile testing down --remove-orphans || true
+                        docker stop connect-aid-selenium-tests || true
+                        docker rm connect-aid-selenium-tests || true
                     '''
                 }
             }
@@ -149,16 +156,33 @@ VITE_API_URL=http://${SERVER_IP}/api
     post {
         always {
             echo 'Pipeline execution completed.'
-            sh '''
-                # Show container status
-                docker ps -a
-                
-                # Show final container logs
-                echo "=== Final Container Status ==="
-                docker logs connect-aid-nginx --tail 20
-                docker logs connect-aid-backend --tail 20  
-                docker logs connect-aid-frontend --tail 20
-            '''
+            script {
+                try {
+                    sh '''
+                        # Show container status
+                        echo "=== Current Container Status ==="
+                        docker ps -a
+                        
+                        # Show final container logs if containers exist
+                        if docker ps -q -f name=connect-aid-nginx; then
+                            echo "=== Nginx Logs (last 20 lines) ==="
+                            docker logs connect-aid-nginx --tail 20
+                        fi
+                        
+                        if docker ps -q -f name=connect-aid-backend; then
+                            echo "=== Backend Logs (last 20 lines) ==="
+                            docker logs connect-aid-backend --tail 20
+                        fi
+                        
+                        if docker ps -q -f name=connect-aid-frontend; then
+                            echo "=== Frontend Logs (last 20 lines) ==="
+                            docker logs connect-aid-frontend --tail 20
+                        fi
+                    '''
+                } catch (Exception e) {
+                    echo "Could not retrieve container logs: ${e.getMessage()}"
+                }
+            }
         }
         
         success {
@@ -173,15 +197,25 @@ VITE_API_URL=http://${SERVER_IP}/api
         
         failure {
             echo '❌ Pipeline failed. Check logs for details.'
-            sh '''
-                # Additional debugging information
-                echo "=== Error Investigation ==="
-                docker ps -a
-                docker logs connect-aid-nginx
-                docker logs connect-aid-backend
-                docker logs connect-aid-frontend
-                docker logs connect-aid-selenium-tests || true
-            '''
+            script {
+                try {
+                    sh '''
+                        # Additional debugging information
+                        echo "=== Error Investigation ==="
+                        docker ps -a
+                        
+                        # Show logs for any existing containers
+                        for container in connect-aid-nginx connect-aid-backend connect-aid-frontend connect-aid-selenium-tests; do
+                            if docker ps -a -q -f name=$container; then
+                                echo "=== $container Logs ==="
+                                docker logs $container --tail 50 || echo "Could not get logs for $container"
+                            fi
+                        done
+                    '''
+                } catch (Exception e) {
+                    echo "Could not retrieve error investigation logs: ${e.getMessage()}"
+                }
+            }
         }
     }
 }

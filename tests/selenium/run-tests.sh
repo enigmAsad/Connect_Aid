@@ -9,8 +9,8 @@ echo "🧪 Starting Selenium Tests for Connect Aid"
 echo "=========================================="
 
 # Environment variables
-export TEST_BASE_URL=${TEST_BASE_URL:-"http://localhost:80"}
-export CI=${CI:-"false"}
+export TEST_BASE_URL=${TEST_BASE_URL:-"http://nginx:80"}
+export CI=${CI:-"true"}
 export NODE_ENV="test"
 
 echo "📋 Test Configuration:"
@@ -49,23 +49,30 @@ done
 
 # Run tests with timeout and detailed output
 echo "🚀 Running Selenium Tests..."
-timeout 300 npm test -- --reporter json --timeout 30000 > test-results/results.json 2>&1 || {
+if timeout 300 npm test -- --reporter spec --timeout 30000; then
+    echo "✅ All tests completed successfully!"
+    
+    # Generate summary if results exist
+    if [ -f test-results/results.json ]; then
+        echo "📊 Test Summary:"
+        echo "  Results saved to: test-results/results.json"
+    fi
+    
+    echo "🎉 Test execution completed!"
+else
     echo "❌ Tests failed or timed out"
+    
     # Show last few lines of Chrome logs if available
     if [ -f ~/.config/chromium/chrome_debug.log ]; then
         echo "📋 Chrome Debug Logs (last 20 lines):"
         tail -20 ~/.config/chromium/chrome_debug.log
     fi
+    
+    # List any screenshots taken
+    if [ -d screenshots ] && [ "$(ls -A screenshots)" ]; then
+        echo "📸 Screenshots captured:"
+        ls -la screenshots/
+    fi
+    
     exit 1
-}
-
-echo "✅ All tests completed successfully!"
-
-# Generate summary if results exist
-if [ -f test-results/results.json ]; then
-    echo "📊 Test Summary:"
-    # Extract basic stats from JSON results
-    echo "  Results saved to: test-results/results.json"
-fi
-
-echo "🎉 Test execution completed!" 
+fi 
