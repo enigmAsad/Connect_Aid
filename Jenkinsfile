@@ -19,7 +19,6 @@ pipeline {
             steps {
                 echo 'Cleaning workspace...'
                 sh '''
-                    # Then try to clean up
                     rm -rf * || true
                     rm -rf .* || true
                 '''
@@ -30,22 +29,6 @@ pipeline {
             steps {
                 echo 'Checking out the latest code from GitHub...'
                 checkout scm
-            }
-        }
-
-        stage('Clean Up Docker') {
-            steps {
-                echo 'Performing thorough Docker cleanup to free disk space...'
-                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    sh '''
-                        docker container prune -f
-                        docker image prune -a -f
-                        docker volume prune -f
-                        docker network prune -f
-                        docker system prune -f
-                        df -h
-                    '''
-                }
             }
         }
 
@@ -62,13 +45,6 @@ JWT_EXPIRE=24h
                 writeFile file: 'frontEnd/.env', text: '''
 VITE_API_URL=http://backend:5000
 '''
-                sh '''
-                    chmod 644 backEnd/.env frontEnd/.env
-                    [ ! -f backEnd/.env ] && echo "Error: backEnd/.env not created" && exit 1
-                    [ ! -f frontEnd/.env ] && echo "Error: frontEnd/.env not created" && exit 1
-                    echo "Environment files created successfully"
-                '''
-                sleep(time: 5, unit: 'SECONDS')
             }
         }
 
@@ -76,22 +52,8 @@ VITE_API_URL=http://backend:5000
             steps {
                 echo 'Building and starting the updated stack...'
                 sh "${DOCKER_COMPOSE} up -d --build"
-            }
-        }
-
-        stage('Wait for Services') {
-            steps {
-                echo 'Waiting for services to be healthy...'
-                sh '''
-                    # Wait for backend to be healthy
-                    timeout 300 bash -c 'while ! docker ps | grep -q "connect-aid-backend.*healthy"; do sleep 5; done'
-                    
-                    # Wait for frontend to be healthy
-                    timeout 300 bash -c 'while ! docker ps | grep -q "connect-aid-frontend.*healthy"; do sleep 5; done'
-                    
-                    # Additional wait to ensure services are fully ready
-                    sleep 10
-                '''
+                // Give containers a moment to start
+                sleep(time: 30, unit: 'SECONDS')
             }
         }
 
@@ -99,25 +61,17 @@ VITE_API_URL=http://backend:5000
             steps {
                 echo 'Verifying deployment...'
                 sh '''
-                    # Check if nginx is accessible (this is the main entry point)
-                    curl -f http://localhost:80 || exit 1
-                    
-                    # Check if backend API is accessible through nginx
-                    curl -f http://localhost:80/api/health || exit 1
-                    
-                    # Check if frontend is accessible through nginx
-                    curl -f http://localhost:80 || exit 1
-                '''
-            }
-        }
-
-        stage('Cleanup') {
-            steps {
-                echo 'Cleaning up workspace...'
-                sh '''
-                    # Clean up workspace with proper permissions
-                    sudo rm -rf * || true
-                    sudo rm -rf .* || true
+                    # Simple curl check with retries
+                    for i in {1..5}; do
+                        if curl -f http://localhost:80/api/health; then
+                            echo "Deployment verified successfully"
+                            exit 0
+                        fi
+                        echo "Attempt $i failed, waiting 10 seconds..."
+                        sleep 10
+                    done
+                    echo "Deployment verification failed after 5 attempts"
+                    exit 1
                 '''
             }
         }
