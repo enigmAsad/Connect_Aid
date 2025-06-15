@@ -1,0 +1,13 @@
+{
+  "name": "connect-aid-selenium-tests",
+  "version": "1.0.0",
+  "description": "Selenium tests for Connect Aid",
+  "scripts": {
+    "test": "mocha --timeout 30000 *.test.js"
+  },
+  "dependencies": {
+    "selenium-webdriver": "^4.18.1",
+    "mocha": "^10.3.0",
+    "chai": "^5.1.0"
+  }
+} 

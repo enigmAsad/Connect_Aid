@@ -128,10 +128,10 @@ VITE_NODE_ENV=production
             steps {
                 echo 'Waiting for services to be fully operational...'
                 script {
-                    // Wait for backend health check with better error handling
+                    // Wait for backend health check through Nginx
                     sh '''
                     for i in $(seq 1 30); do
-                        if curl -fs http://${DOMAIN_NAME}:${BACKEND_PORT}/api/health; then
+                        if curl -fs http://${DOMAIN_NAME}/api/health; then
                             echo "Backend is ready"
                             break
                         fi
@@ -145,10 +145,10 @@ VITE_NODE_ENV=production
                     done
                     '''
                     
-                    // Wait for frontend
+                    // Wait for frontend through Nginx
                     sh '''
                     for i in $(seq 1 30); do
-                        if curl -fs http://${DOMAIN_NAME}:${FRONTEND_PORT}; then
+                        if curl -fs http://${DOMAIN_NAME}; then
                             echo "Frontend is ready"
                             break
                         fi
@@ -223,20 +223,20 @@ VITE_NODE_ENV=production
                 echo 'Verifying the deployment...'
                 sh 'docker-compose ps'
                 sh '''
-                # Check backend health
-                if ! curl -fs http://backend:${BACKEND_PORT}/api/health; then
+                # Check backend health through Nginx
+                if ! curl -fs http://${DOMAIN_NAME}/api/health; then
                     echo "Backend not responding"
                     exit 1
                 fi
                 
-                # Check frontend
-                if ! curl -fs http://frontend:${FRONTEND_PORT}; then
+                # Check frontend through Nginx
+                if ! curl -fs http://${DOMAIN_NAME}; then
                     echo "Frontend not responding"
                     exit 1
                 fi
                 
                 # Check nginx
-                if ! curl -fs http://nginx:80; then
+                if ! curl -fs http://${DOMAIN_NAME}; then
                     echo "Nginx not responding"
                     exit 1
                 fi
