@@ -106,6 +106,14 @@ VITE_API_URL=http://${SERVER_IP}/api
                     echo "Building Selenium tests container..."
                     docker-compose build selenium-tests
                     
+                    # Verify Chrome and ChromeDriver installation
+                    echo "Verifying Chrome and ChromeDriver installation..."
+                    docker-compose run --rm selenium-tests sh -c "
+                        echo 'Chrome version:' && chromium-browser --version && 
+                        echo 'ChromeDriver version:' && chromedriver --version &&
+                        echo 'ChromeDriver path:' && which chromedriver
+                    "
+                    
                     # Run selenium tests with proper error handling
                     echo "Starting Selenium tests..."
                     if ! docker-compose up selenium-tests; then
@@ -117,6 +125,7 @@ VITE_API_URL=http://${SERVER_IP}/api
                             echo "ChromeDriver error detected. Checking versions..."
                             docker exec connect-aid-selenium-tests chromium-browser --version
                             docker exec connect-aid-selenium-tests chromedriver --version
+                            docker exec connect-aid-selenium-tests ls -l /usr/local/bin/chromedriver
                         fi
                         
                         exit 1

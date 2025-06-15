@@ -16,7 +16,9 @@ RUN apk add --no-cache \
     curl
 
 # Install ChromeDriver
-RUN CHROMEDRIVER_VERSION="114.0.5735.90" && \
+RUN CHROME_VERSION=$(chromium-browser --version | awk '{print $2}' | cut -d'.' -f1) && \
+    echo "Detected Chrome version: $CHROME_VERSION" && \
+    CHROMEDRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION) && \
     echo "Installing ChromeDriver version: $CHROMEDRIVER_VERSION" && \
     wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" && \
     unzip chromedriver_linux64.zip && \
@@ -25,7 +27,7 @@ RUN CHROMEDRIVER_VERSION="114.0.5735.90" && \
     chmod +x /usr/local/bin/chromedriver && \
     rm chromedriver_linux64.zip && \
     echo "Verifying ChromeDriver version..." && \
-    /usr/local/bin/chromedriver --version && \
+    chromedriver --version && \
     echo "Verifying Chrome version..." && \
     chromium-browser --version && \
     echo "Verifying ChromeDriver path..." && \

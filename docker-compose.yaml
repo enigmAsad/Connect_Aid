@@ -79,6 +79,8 @@ services:
       - NODE_ENV=test
       - CHROME_BIN=/usr/bin/chromium-browser
       - CHROME_PATH=/usr/lib/chromium/
+      - CHROMEDRIVER_PATH=/usr/local/bin/chromedriver
+      - DISPLAY=:99
     shm_size: '2gb'  # Increase shared memory for Chrome
     depends_on:
       frontend:
