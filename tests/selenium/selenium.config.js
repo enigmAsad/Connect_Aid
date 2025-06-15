@@ -12,7 +12,7 @@ const getBaseUrl = () => {
 };
 
 async function createDriver() {
-    console.log('🚀 Creating Chrome driver with system binaries...');
+    console.log('Creating Chrome driver with system binaries...');
     
     const options = new chrome.Options();
     
@@ -36,25 +36,25 @@ async function createDriver() {
     options.addArguments('--remote-debugging-port=9222');
     
     // Set the Chrome binary path for Alpine Linux
-    console.log('📍 Setting Chrome binary path: /usr/bin/chromium-browser');
+    console.log('Setting Chrome binary path: /usr/bin/chromium-browser');
     options.setChromeBinaryPath('/usr/bin/chromium-browser');
 
     // Create Chrome service with system ChromeDriver
-    console.log('📍 Setting ChromeDriver path: /usr/bin/chromedriver');
+    console.log('Setting ChromeDriver path: /usr/bin/chromedriver');
     const service = new chrome.ServiceBuilder('/usr/bin/chromedriver');
 
     try {
-        console.log('🔧 Building Chrome driver...');
+        console.log('Building Chrome driver...');
         const driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(options)
             .setChromeService(service)
             .build();
         
-        console.log('✅ Chrome driver created successfully!');
+        console.log('Chrome driver created successfully!');
         return driver;
     } catch (error) {
-        console.error('❌ Failed to create Chrome driver:', error.message);
+        console.error('Failed to create Chrome driver:', error.message);
         console.error('Full error:', error);
         throw error;
     }
