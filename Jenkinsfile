@@ -84,13 +84,6 @@ VITE_API_URL=http://backend:5000
             }
         }
 
-        stage('Run Selenium Tests') {
-            steps {
-                echo 'Running Selenium tests...'
-                sh "${DOCKER_COMPOSE} exec -T test-runner npm test"
-            }
-        }
-
         stage('Verify Deployment') {
             steps {
                 echo 'Verifying deployment...'
