@@ -2,7 +2,7 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Install dependencies for running tests
+# Install system dependencies in a single layer (following backend pattern)
 RUN apk add --no-cache \
     chromium \
     nss \
@@ -12,22 +12,15 @@ RUN apk add --no-cache \
     ca-certificates \
     ttf-freefont \
     wget \
-    unzip \
     curl
 
-# Set Chrome environment variables
-ENV CHROME_BIN=/usr/bin/chromium-browser
-ENV CHROME_PATH=/usr/lib/chromium/
+# Set Chrome environment variables for Selenium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser \
+    CHROME_BIN=/usr/bin/chromium-browser \
+    CHROME_PATH=/usr/lib/chromium/
 
-# Install ChromeDriver in the correct location
-RUN mkdir -p /root/.cache/selenium/chromedriver/linux64/136.0.7103.113 && \
-    wget -q "https://storage.googleapis.com/chrome-for-testing-public/136.0.7103.113/linux64/chromedriver-linux64.zip" && \
-    unzip chromedriver-linux64.zip && \
-    mv chromedriver-linux64/chromedriver /root/.cache/selenium/chromedriver/linux64/136.0.7103.113/chromedriver && \
-    chmod +x /root/.cache/selenium/chromedriver/linux64/136.0.7103.113/chromedriver && \
-    rm -rf chromedriver-linux64.zip chromedriver-linux64
-
-# Copy package files
+# Copy package files first (following backend/frontend pattern)
 COPY package*.json ./
 
 # Install dependencies
@@ -36,8 +29,12 @@ RUN npm install
 # Copy test files
 COPY . .
 
-# Create directory for test results
-RUN mkdir -p test-results
+# Create directory for test results and screenshots
+RUN mkdir -p test-results screenshots
 
-# Set default command
+# Health check to ensure Chrome is working
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD chromium-browser --version || exit 1
+
+# Default command (following backend pattern)
 CMD ["npm", "test"] 

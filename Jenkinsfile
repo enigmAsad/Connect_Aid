@@ -93,6 +93,57 @@ VITE_API_URL=http://${SERVER_IP}/api
                 '''
             }
         }
+
+        stage('Run E2E Tests') {
+            steps {
+                echo 'Running End-to-End Selenium Tests...'
+                script {
+                    try {
+                        // Run Selenium tests using the testing profile
+                        sh '''
+                            echo "🧪 Setting up E2E Test Environment..."
+                            
+                            # Create test results directory
+                            mkdir -p tests/selenium/test-results tests/selenium/screenshots
+                            
+                            # Set test environment variables
+                            export TEST_BASE_URL=http://localhost:80
+                            export CI=true
+                            
+                            echo "🚀 Starting Selenium test container..."
+                            ${DOCKER_COMPOSE} --profile testing up --build --abort-on-container-exit selenium-tests
+                        '''
+                        
+                        echo "✅ E2E Tests completed successfully!"
+                        
+                    } catch (Exception e) {
+                        echo "❌ E2E Tests failed: ${e.getMessage()}"
+                        
+                        // Show test container logs for debugging
+                        sh '''
+                            echo "=== Selenium Test Logs ==="
+                            docker logs connect-aid-selenium-tests || echo "No selenium test logs available"
+                        '''
+                        
+                        // Mark stage as unstable but continue pipeline
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }
+            }
+            post {
+                always {
+                    // Archive test results and screenshots
+                    archiveArtifacts artifacts: 'tests/selenium/test-results/**/*', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'tests/selenium/screenshots/**/*', allowEmptyArchive: true
+                    
+                    // Cleanup test container
+                    sh '''
+                        echo "🧹 Cleaning up test containers..."
+                        ${DOCKER_COMPOSE} --profile testing down --remove-orphans || true
+                    '''
+                }
+            }
+        }
     }
 
     post {
@@ -102,15 +153,34 @@ VITE_API_URL=http://${SERVER_IP}/api
                 # Show container status
                 docker ps -a
                 
-                # Show container logs if verification failed
-                if [ $? -ne 0 ]; then
-                    echo "=== Nginx Logs ==="
-                    docker logs connect-aid-nginx
-                    echo "=== Backend Logs ==="
-                    docker logs connect-aid-backend
-                    echo "=== Frontend Logs ==="
-                    docker logs connect-aid-frontend
-                fi
+                # Show final container logs
+                echo "=== Final Container Status ==="
+                docker logs connect-aid-nginx --tail 20
+                docker logs connect-aid-backend --tail 20  
+                docker logs connect-aid-frontend --tail 20
+            '''
+        }
+        
+        success {
+            echo '🎉 Deployment and E2E Tests completed successfully!'
+            // You can add notifications here (Slack, email, etc.)
+        }
+        
+        unstable {
+            echo '⚠️ Deployment successful but E2E tests had issues. Check test results.'
+            // You can add specific notifications for test failures
+        }
+        
+        failure {
+            echo '❌ Pipeline failed. Check logs for details.'
+            sh '''
+                # Additional debugging information
+                echo "=== Error Investigation ==="
+                docker ps -a
+                docker logs connect-aid-nginx
+                docker logs connect-aid-backend
+                docker logs connect-aid-frontend
+                docker logs connect-aid-selenium-tests || true
             '''
         }
     }

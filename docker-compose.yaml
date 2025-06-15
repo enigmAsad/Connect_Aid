@@ -67,6 +67,32 @@ services:
     networks:
       - connect-aid-network
 
+  # Selenium E2E Tests (runs on demand)
+  selenium-tests:
+    build:
+      context: ./tests/selenium
+      dockerfile: Dockerfile
+    container_name: connect-aid-selenium-tests
+    environment:
+      - NODE_ENV=test
+      - CI=true
+      - TEST_BASE_URL=http://nginx:80
+    volumes:
+      - ./tests/selenium/test-results:/app/test-results
+      - ./tests/selenium/screenshots:/app/screenshots
+    depends_on:
+      nginx:
+        condition: service_started
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    networks:
+      - connect-aid-network
+    profiles:
+      - testing
+    command: ["./run-tests.sh"]
+
 networks:
   connect-aid-network:
     driver: bridge
