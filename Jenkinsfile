@@ -47,7 +47,7 @@ JWT_SECRET=9b773c7c41a6c77042443a60c24477af6003c6108422540d99ddd04f23ed26206a773
 JWT_EXPIRE=24h
 """
                 writeFile file: 'frontEnd/.env', text: """
-VITE_API_URL=http://${SERVER_IP}/api
+VITE_API_URL=/api
 """
             }
         }
