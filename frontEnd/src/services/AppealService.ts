@@ -30,12 +30,12 @@ export const createAppeal = async (appealData: FormData): Promise<Appeal> => {
   }
 };
 
-export const fetchUserAppeals = async (): Promise<Appeal[]> => {
+export const fetchMyAppeals = async (): Promise<Appeal[]> => {
   try {
     const response = await api.get('/appeals/my-appeals');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch user appeals:', error);
+    console.error('Failed to fetch my appeals:', error);
     throw error;
   }
 };
@@ -45,7 +45,7 @@ export const fetchAllAppeals = async (): Promise<Appeal[]> => {
     const response = await api.get('/appeals');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch appeals:', error);
+    console.error('Failed to fetch all appeals:', error);
     throw error;
   }
 };

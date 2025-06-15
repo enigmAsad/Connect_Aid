@@ -12,22 +12,22 @@ export interface UserProfile {
   avatar?: string;
 }
 
-export const fetchUserProfile = async (): Promise<UserProfile> => {
+export const fetchProfile = async (): Promise<UserProfile> => {
   try {
     const response = await api.get('/user/profile');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch user profile:', error);
+    console.error('Failed to fetch profile:', error);
     throw error;
   }
 };
 
-export const updateUserProfile = async (profileData: Partial<UserProfile>): Promise<UserProfile> => {
+export const updateProfile = async (profileData: Partial<UserProfile>): Promise<UserProfile> => {
   try {
     const response = await api.put('/user/profile', profileData);
     return response.data;
   } catch (error) {
-    console.error('Failed to update user profile:', error);
+    console.error('Failed to update profile:', error);
     throw error;
   }
 };
