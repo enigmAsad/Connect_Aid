@@ -7,11 +7,11 @@ const getBaseUrl = () => {
   
   // In production (Docker/EC2), use relative URL as nginx handles routing
   if (import.meta.env.PROD) {
-    return apiUrl || ''; // Use environment variable or empty string for relative URLs
+    return ''; // Use empty string as nginx handles /api prefix
   }
   
   // Local development
-  return apiUrl || 'http://localhost:5000';
+  return apiUrl || 'http://localhost:5000/api';
 };
 
 // Create axios instance with base configuration
