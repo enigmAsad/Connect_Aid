@@ -211,35 +211,6 @@ VITE_NODE_ENV=production
     }
 
     post {
-        success {
-            echo 'Pipeline executed successfully. The web application is now running.'
-            emailext (
-                subject: "Pipeline Successful: ${currentBuild.fullDisplayName}",
-                body: """
-                Pipeline Successful: ${currentBuild.fullDisplayName}
-                Domain: ${DOMAIN_NAME}
-                Backend URL: http://${DOMAIN_NAME}:${BACKEND_PORT}
-                Frontend URL: http://${DOMAIN_NAME}:${FRONTEND_PORT}
-                View the results at ${env.BUILD_URL}
-                """,
-                recipientProviders: [[$class: 'DevelopersRecipientProvider']]
-            )
-        }
-        failure {
-            echo 'Pipeline execution failed. Cleaning up...'
-            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                sh 'docker-compose down --volumes --remove-orphans'
-            }
-            emailext (
-                subject: "Pipeline Failed: ${currentBuild.fullDisplayName}",
-                body: """
-                Pipeline Failed: ${currentBuild.fullDisplayName}
-                Domain: ${DOMAIN_NAME}
-                View the results at ${env.BUILD_URL}
-                """,
-                recipientProviders: [[$class: 'DevelopersRecipientProvider']]
-            )
-        }
         always {
             echo 'Pipeline execution completed.'
             cleanWs()
