@@ -23,19 +23,15 @@ ENV CHROME_PATH=/usr/lib/chromium/
 ENV TEST_BASE_URL=http://frontend:80
 ENV CI=true
 
-# Get exact Chrome version and install matching ChromeDriver
-RUN CHROME_VERSION=$(chromium-browser --version | awk '{print $2}') && \
-    echo "Chrome version: $CHROME_VERSION" && \
-    CHROME_MAJOR_VERSION=$(echo $CHROME_VERSION | cut -d'.' -f1) && \
-    echo "Chrome major version: $CHROME_MAJOR_VERSION" && \
-    CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION") && \
-    echo "ChromeDriver version: $CHROMEDRIVER_VERSION" && \
+# Install specific version of ChromeDriver that matches Chrome
+RUN CHROMEDRIVER_VERSION="114.0.5735.90" && \
+    echo "Installing ChromeDriver version: $CHROMEDRIVER_VERSION" && \
     wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" && \
     unzip chromedriver_linux64.zip && \
     mv chromedriver /usr/local/bin/ && \
     chmod +x /usr/local/bin/chromedriver && \
     rm chromedriver_linux64.zip && \
-    # Verify versions match
+    # Verify installation
     echo "Verifying ChromeDriver version..." && \
     chromedriver --version && \
     echo "Verifying Chrome version..." && \
