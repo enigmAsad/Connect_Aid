@@ -76,6 +76,10 @@ services:
     environment:
       - TEST_BASE_URL=http://frontend:80
       - CI=true
+      - NODE_ENV=test
+      - CHROME_BIN=/usr/bin/chromium-browser
+      - CHROME_PATH=/usr/lib/chromium/
+    shm_size: '2gb'  # Increase shared memory for Chrome
     depends_on:
       frontend:
         condition: service_healthy
@@ -83,6 +87,12 @@ services:
         condition: service_healthy
     networks:
       - connect-aid-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://frontend:80"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 networks:
   connect-aid-network:

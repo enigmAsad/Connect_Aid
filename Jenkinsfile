@@ -102,9 +102,25 @@ VITE_API_URL=http://${SERVER_IP}/api
                     echo "Waiting for frontend to be fully ready..."
                     sleep 30
                     
-                    # Run selenium tests
+                    # Build selenium tests container
+                    echo "Building Selenium tests container..."
+                    docker-compose build selenium-tests
+                    
+                    # Run selenium tests with proper error handling
                     echo "Starting Selenium tests..."
-                    docker-compose up selenium-tests
+                    if ! docker-compose up selenium-tests; then
+                        echo "Selenium tests failed"
+                        docker logs connect-aid-selenium-tests
+                        
+                        # Check if it's a Chrome/ChromeDriver issue
+                        if docker logs connect-aid-selenium-tests | grep -i "chromedriver"; then
+                            echo "ChromeDriver error detected. Checking versions..."
+                            docker exec connect-aid-selenium-tests chromium-browser --version
+                            docker exec connect-aid-selenium-tests chromedriver --version
+                        fi
+                        
+                        exit 1
+                    fi
                     
                     # Check test results
                     TEST_EXIT_CODE=$(docker inspect connect-aid-selenium-tests --format='{{.State.ExitCode}}')

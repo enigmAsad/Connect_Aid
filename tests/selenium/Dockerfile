@@ -23,17 +23,17 @@ ENV CHROME_PATH=/usr/lib/chromium/
 ENV TEST_BASE_URL=http://frontend:80
 ENV CI=true
 
-# Install specific version of ChromeDriver that matches Chrome
+# Install ChromeDriver
 RUN CHROMEDRIVER_VERSION="114.0.5735.90" && \
     echo "Installing ChromeDriver version: $CHROMEDRIVER_VERSION" && \
     wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" && \
     unzip chromedriver_linux64.zip && \
-    mv chromedriver /usr/local/bin/ && \
-    chmod +x /usr/local/bin/chromedriver && \
+    mv chromedriver /usr/bin/chromedriver && \
+    chmod +x /usr/bin/chromedriver && \
     rm chromedriver_linux64.zip && \
     # Verify installation
     echo "Verifying ChromeDriver version..." && \
-    chromedriver --version && \
+    /usr/bin/chromedriver --version && \
     echo "Verifying Chrome version..." && \
     chromium-browser --version
 
