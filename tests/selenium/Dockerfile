@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
 # Install ChromeDriver
 RUN CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | cut -d'.' -f1) && \
     echo "Detected Chrome version: $CHROME_VERSION" && \
-    wget -q "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/stable/linux64/chromedriver-linux64.zip" && \
+    wget -q "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/137.0.7151.103/linux64/chromedriver-linux64.zip" && \
     unzip chromedriver-linux64.zip && \
     mv chromedriver-linux64/chromedriver /usr/local/bin/ && \
     chmod +x /usr/local/bin/chromedriver && \
