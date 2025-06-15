@@ -54,7 +54,6 @@ services:
     environment:
       - NODE_ENV=production
       - VITE_API_URL=
-      - VITE_API_PREFIX=/api
     depends_on:
       backend:
         condition: service_healthy

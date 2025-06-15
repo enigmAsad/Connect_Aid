@@ -30,12 +30,7 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Make sure all requests go to the correct API endpoint
-    const apiPrefix = import.meta.env.VITE_API_PREFIX || '/api';
-    if (config.url && !config.url.startsWith(apiPrefix)) {
-      config.url = `${apiPrefix}${config.url.startsWith('/') ? '' : '/'}${config.url}`;
-    }
-    
+    // Remove the API prefix handling since nginx already handles it
     return config;
   },
   (error) => Promise.reject(error)
