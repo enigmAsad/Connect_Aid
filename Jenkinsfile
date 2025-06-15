@@ -7,6 +7,7 @@ pipeline {
         BRANCH_NAME = "main"
         SELENIUM_HOST = "selenium"
         SELENIUM_PORT = "4444"
+        SELENIUM_VNC_PORT = "7900"
         DOMAIN_NAME = "52.55.93.175"
         BACKEND_PORT = "5000"
         FRONTEND_PORT = "5173"
@@ -70,15 +71,33 @@ pipeline {
             }
         }
 
-        stage('Prepare .env File') {
+        stage('Prepare Environment Files') {
             steps {
-                echo 'Creating .env file for backend...'
-                writeFile file: 'backEnd/.env', text: '''
-MONGO_URI=mongodb+srv://root:12345@connectaid-cluster.yv9ci.mongodb.net/?retryWrites=true&w=majority&appName=ConnectAid-Cluster
-PORT=5000
-JWT_SECRET=ConnectAid_SecureJWT_Key_2024_!@#$
+                echo 'Creating environment files...'
+                // Create root .env file
+                writeFile file: '.env', text: """
 DOMAIN_NAME=${DOMAIN_NAME}
-'''
+BACKEND_PORT=${BACKEND_PORT}
+FRONTEND_PORT=${FRONTEND_PORT}
+NGINX_PORT=${NGINX_PORT}
+SELENIUM_HOST=${SELENIUM_HOST}
+SELENIUM_PORT=${SELENIUM_PORT}
+SELENIUM_VNC_PORT=${SELENIUM_VNC_PORT}
+"""
+                // Create backend .env file
+                writeFile file: 'backEnd/.env', text: """
+MONGO_URI=mongodb+srv://root:12345@connectaid-cluster.yv9ci.mongodb.net/?retryWrites=true&w=majority&appName=ConnectAid-Cluster
+PORT=${BACKEND_PORT}
+NODE_ENV=production
+JWT_SECRET=9b773c7c41a6c77042443a60c24477af6003c6108422540d99ddd04f23ed26206a7739d50586227e8066b8894d112d00a1557438b442815bc3c246cd7b8e7c95
+JWT_EXPIRE=24h
+"""
+                // Create frontend .env file
+                writeFile file: 'frontEnd/.env', text: """
+VITE_API_URL=http://${DOMAIN_NAME}:${BACKEND_PORT}
+VITE_API_PREFIX=/api
+VITE_NODE_ENV=production
+"""
             }
         }
 
