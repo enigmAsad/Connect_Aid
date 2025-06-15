@@ -15,7 +15,7 @@ RUN npm run build
 RUN npm install -g serve
 
 # Expose the port that serve will use
-EXPOSE 3000
+EXPOSE 5173
 
 # Command to serve the production build
-CMD ["serve", "-s", "dist", "-l", "3000"]
+CMD ["serve", "-s", "dist", "-l", "5173"]
