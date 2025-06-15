@@ -8,14 +8,14 @@ pipeline {
         SELENIUM_HOST = "selenium"
         SELENIUM_PORT = "4444"
         SELENIUM_VNC_PORT = "7900"
-        DOMAIN_NAME = "52.55.93.175"
+        DOMAIN_NAME = "18.206.159.67"
         BACKEND_PORT = "5000"
         FRONTEND_PORT = "5173"
         NGINX_PORT = "80"
     }
 
     parameters {
-        string(name: 'DOMAIN_NAME', defaultValue: '52.55.93.175', description: 'Domain name or EC2 public IP')
+        string(name: 'DOMAIN_NAME', defaultValue: '18.206.159.67', description: 'Domain name or EC2 public IP')
     }
 
     triggers {
