@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DOCKER_COMPOSE = 'docker-compose'
+        SERVER_IP = '18.206.159.67'  // Add server IP as environment variable
     }
 
     stages {
@@ -35,16 +36,19 @@ pipeline {
         stage('Prepare Environment Files') {
             steps {
                 echo 'Creating environment files...'
-                writeFile file: 'backEnd/.env', text: '''
+                writeFile file: 'backEnd/.env', text: """
 NODE_ENV=production
 PORT=5000
+CURRENT_HOST=${SERVER_IP}
+FRONTEND_PORT=80
+ADDITIONAL_ORIGINS=http://${SERVER_IP},http://${SERVER_IP}:80
 MONGO_URI=mongodb+srv://root:12345@connectaid-cluster.yv9ci.mongodb.net/?retryWrites=true&w=majority&appName=ConnectAid-Cluster
 JWT_SECRET=9b773c7c41a6c77042443a60c24477af6003c6108422540d99ddd04f23ed26206a7739d50586227e8066b8894d112d00a1557438b442815bc3c246cd7b8e7c95
 JWT_EXPIRE=24h
-'''
-                writeFile file: 'frontEnd/.env', text: '''
-VITE_API_URL=http://backend:5000
-'''
+"""
+                writeFile file: 'frontEnd/.env', text: """
+VITE_API_URL=http://${SERVER_IP}/api
+"""
             }
         }
 
