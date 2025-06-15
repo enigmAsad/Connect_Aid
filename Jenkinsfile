@@ -111,7 +111,9 @@ VITE_API_URL=http://${SERVER_IP}/api
                     docker-compose run --rm selenium-tests sh -c "
                         echo 'Chrome version:' && chromium-browser --version && 
                         echo 'ChromeDriver version:' && chromedriver --version &&
-                        echo 'ChromeDriver path:' && which chromedriver
+                        echo 'ChromeDriver path:' && which chromedriver &&
+                        echo 'ChromeDriver permissions:' && ls -l /usr/local/bin/chromedriver &&
+                        echo 'Environment variables:' && env | grep -E 'CHROME|DISPLAY'
                     "
                     
                     # Run selenium tests with proper error handling
@@ -122,10 +124,14 @@ VITE_API_URL=http://${SERVER_IP}/api
                         
                         # Check if it's a Chrome/ChromeDriver issue
                         if docker logs connect-aid-selenium-tests | grep -i "chromedriver"; then
-                            echo "ChromeDriver error detected. Checking versions..."
-                            docker exec connect-aid-selenium-tests chromium-browser --version
-                            docker exec connect-aid-selenium-tests chromedriver --version
-                            docker exec connect-aid-selenium-tests ls -l /usr/local/bin/chromedriver
+                            echo "ChromeDriver error detected. Checking versions and configuration..."
+                            docker exec connect-aid-selenium-tests sh -c "
+                                echo 'Chrome version:' && chromium-browser --version &&
+                                echo 'ChromeDriver version:' && chromedriver --version &&
+                                echo 'ChromeDriver path:' && which chromedriver &&
+                                echo 'ChromeDriver permissions:' && ls -l /usr/local/bin/chromedriver &&
+                                echo 'Environment variables:' && env | grep -E 'CHROME|DISPLAY'
+                            "
                         fi
                         
                         exit 1

@@ -81,6 +81,8 @@ services:
       - CHROME_PATH=/usr/lib/chromium/
       - CHROMEDRIVER_PATH=/usr/local/bin/chromedriver
       - DISPLAY=:99
+      - CHROME_HEADLESS=true
+      - CHROME_NO_SANDBOX=true
     shm_size: '2gb'  # Increase shared memory for Chrome
     depends_on:
       frontend:
