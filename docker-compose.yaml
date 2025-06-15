@@ -53,7 +53,7 @@ services:
     container_name: connect-aid-frontend
     environment:
       - NODE_ENV=production
-      - VITE_API_URL=http://backend:5000/api
+      - VITE_API_URL=/api
     depends_on:
       backend:
         condition: service_healthy
@@ -83,7 +83,6 @@ services:
       - DISPLAY=:99
       - CHROME_HEADLESS=true
       - CHROME_NO_SANDBOX=true
-      - VITE_API_URL=http://backend:5000/api
     shm_size: '2gb'  # Increase shared memory for Chrome
     depends_on:
       frontend:
