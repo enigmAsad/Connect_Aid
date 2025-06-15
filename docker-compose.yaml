@@ -3,13 +3,13 @@ version: '3.8'
 services:
   # Nginx service for reverse proxy
   nginx:
-    image: nginx:latest
+    image: nginx:alpine
     container_name: connect-aid-nginx
     restart: unless-stopped
     ports:
-      - "${NGINX_PORT:-80}:80"
+      - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - frontend
       - backend
@@ -22,27 +22,27 @@ services:
       context: ./backEnd
       dockerfile: Dockerfile
     container_name: connect-aid-backend
-    restart: unless-stopped
     ports:
-      - "${BACKEND_PORT:-5000}:5000"
-    env_file:
-      - ./backEnd/.env
-    environment:
-      - CURRENT_HOST=${DOMAIN_NAME:-localhost}
-      - FRONTEND_PORT=${FRONTEND_PORT:-5173}
-      - ADDITIONAL_ORIGINS=${ADDITIONAL_ORIGINS:-}
+      - "5000:5000"
     volumes:
       - ./backEnd:/app
       - /app/node_modules
-      - ./backEnd/uploads:/app/uploads
-    networks:
-      - connect-aid-network
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGODB_URI=mongodb+srv://root:12345@connectaid-cluster.yv9ci.mongodb.net/?retryWrites=true&w=majority&appName=ConnectAid-Cluster
+      - JWT_SECRET=9b773c7c41a6c77042443a60c24477af6003c6108422540d99ddd04f23ed26206a7739d50586227e8066b8894d112d00a1557438b442815bc3c246cd7b8e7c95
+      - JWT_EXPIRE=24h
+    depends_on:
+      mongodb:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:${BACKEND_PORT:-5000}/api/health"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://backend:5000/api/health"]
+      interval: 30s
+      timeout: 10s
       retries: 3
-      start_period: 30s
+      start_period: 60s
+    restart: unless-stopped
 
   # Frontend service
   frontend:
@@ -50,21 +50,23 @@ services:
       context: ./frontEnd
       dockerfile: Dockerfile
     container_name: connect-aid-frontend
-    restart: unless-stopped
-    expose:
-      - "${FRONTEND_PORT:-5173}"
-    env_file:
-      - ./frontEnd/.env
-    environment:
-      - VITE_CURRENT_HOST=${DOMAIN_NAME:-localhost}
+    ports:
+      - "5173:5173"
     volumes:
       - ./frontEnd:/app
       - /app/node_modules
+    environment:
+      - VITE_API_URL=http://backend:5000
     depends_on:
       backend:
         condition: service_healthy
-    networks:
-      - connect-aid-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://frontend:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
 
   # Selenium test service
   selenium:
@@ -74,42 +76,36 @@ services:
     environment:
       - SE_NODE_MAX_SESSIONS=4
       - SE_NODE_OVERRIDE_MAX_SESSIONS=true
-      - SE_VNC_NO_PASSWORD=1
     ports:
-      - "${SELENIUM_PORT:-4444}:4444"
-      - "${SELENIUM_VNC_PORT:-7900}:7900"
-    networks:
-      - connect-aid-network
+      - "4444:4444"
     depends_on:
       - frontend
       - backend
+    restart: unless-stopped
 
   # Test runner service
   test-runner:
     build:
-      context: .
-      dockerfile: tests/selenium/Dockerfile
+      context: ./tests/selenium
+      dockerfile: Dockerfile
     container_name: connect-aid-test-runner
-    environment:
-      - SELENIUM_HOST=${SELENIUM_HOST:-selenium}
-      - SELENIUM_PORT=${SELENIUM_PORT:-4444}
-      - FRONTEND_URL=http://frontend:${FRONTEND_PORT:-5173}
-      - BACKEND_URL=http://backend:${BACKEND_PORT:-5000}
-      - CI=true
-      - TEST_BASE_URL=http://${DOMAIN_NAME:-localhost}:${NGINX_PORT:-80}
-      - CHROME_BIN=/usr/bin/chromium-browser
-      - CHROME_PATH=/usr/lib/chromium/
-      - PATH=/root/.cache/selenium/chromedriver/linux64/136.0.7103.113:${PATH}
     volumes:
-      - ./tests:/app/tests
-      - /app/node_modules
+      - ./tests/selenium:/app
       - ./test-results:/app/test-results
-    networks:
-      - connect-aid-network
+    environment:
+      - TEST_BASE_URL=http://nginx
+      - CI=true
     depends_on:
-      - selenium
-      - frontend
-      - backend
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+      selenium:
+        condition: service_started
+    command: npm test
+
+volumes:
+  mongodb_data:
 
 networks:
   connect-aid-network:
