@@ -15,16 +15,14 @@ RUN apk add --no-cache \
     unzip \
     curl
 
-# Set environment variables for Chrome
+# Set Chrome environment variables
 ENV CHROME_BIN=/usr/bin/chromium-browser
 ENV CHROME_PATH=/usr/lib/chromium/
 
 # Install ChromeDriver
 RUN CHROME_VERSION=$(chromium-browser --version | awk '{print $2}' | cut -d'.' -f1) && \
     echo "Chrome version: $CHROME_VERSION" && \
-    CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION") && \
-    echo "ChromeDriver version: $CHROMEDRIVER_VERSION" && \
-    wget -q "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$CHROMEDRIVER_VERSION/linux64/chromedriver-linux64.zip" && \
+    wget -q "https://storage.googleapis.com/chrome-for-testing-public/136.0.7103.113/linux64/chromedriver-linux64.zip" && \
     unzip chromedriver-linux64.zip && \
     mv chromedriver-linux64/chromedriver /usr/bin/chromedriver && \
     chmod +x /usr/bin/chromedriver && \
@@ -37,10 +35,10 @@ COPY package*.json ./
 RUN npm install
 
 # Copy test files
-COPY tests/selenium ./tests/selenium
+COPY . .
 
 # Create directory for test results
 RUN mkdir -p test-results
 
-# Set the default command to run tests
+# Set default command
 CMD ["npm", "test"] 
