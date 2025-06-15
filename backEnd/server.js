@@ -27,8 +27,14 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
+    // Always allow health check endpoints
+    if (origin.includes('/api/health')) {
+      return callback(null, true);
+    }
+    
     if (allowedOrigins.indexOf(origin) === -1) {
       console.log('CORS blocked request from:', origin);
+      console.log('Allowed origins:', allowedOrigins);
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
     }
@@ -67,11 +73,13 @@ app.get('/test', (req, res) => {
 // Health check endpoint for Docker
 app.get('/api/health', (req, res) => {
   try {
-    console.log('Health check requested');
+    console.log('Health check requested from:', req.headers.origin || 'unknown origin');
     console.log('MongoDB connection state:', mongoose.connection.readyState);
     console.log('Environment variables:', {
       PORT: process.env.PORT,
       NODE_ENV: process.env.NODE_ENV,
+      CURRENT_HOST: process.env.CURRENT_HOST,
+      FRONTEND_PORT: process.env.FRONTEND_PORT,
       MONGO_URI: process.env.MONGO_URI ? 'Set' : 'Not set'
     });
 
@@ -86,6 +94,8 @@ app.get('/api/health', (req, res) => {
           env: {
             PORT: process.env.PORT,
             NODE_ENV: process.env.NODE_ENV,
+            CURRENT_HOST: process.env.CURRENT_HOST,
+            FRONTEND_PORT: process.env.FRONTEND_PORT,
             MONGO_URI: process.env.MONGO_URI ? 'Set' : 'Not set'
           }
         }

@@ -91,6 +91,9 @@ PORT=${BACKEND_PORT}
 NODE_ENV=production
 JWT_SECRET=9b773c7c41a6c77042443a60c24477af6003c6108422540d99ddd04f23ed26206a7739d50586227e8066b8894d112d00a1557438b442815bc3c246cd7b8e7c95
 JWT_EXPIRE=24h
+CURRENT_HOST=${DOMAIN_NAME}
+FRONTEND_PORT=${FRONTEND_PORT}
+ADDITIONAL_ORIGINS=http://${DOMAIN_NAME}:${FRONTEND_PORT},http://${DOMAIN_NAME}:${BACKEND_PORT},http://frontend:${FRONTEND_PORT},http://backend:${BACKEND_PORT}
 """
                 // Create frontend .env file
                 writeFile file: 'frontEnd/.env', text: """
