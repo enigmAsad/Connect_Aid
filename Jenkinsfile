@@ -6,6 +6,17 @@ pipeline {
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                echo 'Cleaning workspace...'
+                sh '''
+                    # Try to clean up with sudo if needed
+                    sudo rm -rf * || true
+                    sudo rm -rf .* || true
+                '''
+            }
+        }
+
         stage('Checkout') {
             steps {
                 echo 'Checking out the latest code from GitHub...'
@@ -104,7 +115,11 @@ VITE_API_URL=http://backend:5000
     post {
         always {
             echo 'Pipeline execution completed.'
-            cleanWs()
+            sh '''
+                # Clean up workspace with proper permissions
+                sudo rm -rf * || true
+                sudo rm -rf .* || true
+            '''
         }
     }
 }

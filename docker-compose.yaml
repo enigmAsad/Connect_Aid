@@ -70,9 +70,6 @@ services:
     networks:
       - connect-aid-network
 
-volumes:
-  mongodb_data:
-
 networks:
   connect-aid-network:
     driver: bridge
