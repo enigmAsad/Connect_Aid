@@ -8,8 +8,14 @@ RUN npm install
 
 COPY . .
 
-# Expose the port that Vite uses
-EXPOSE 5173
+# Build the application
+RUN npm run build
 
-# Command to run the Vite dev server with proper host binding
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Install serve to run the production build
+RUN npm install -g serve
+
+# Expose the port that serve will use
+EXPOSE 3000
+
+# Command to serve the production build
+CMD ["serve", "-s", "dist", "-l", "3000"]
