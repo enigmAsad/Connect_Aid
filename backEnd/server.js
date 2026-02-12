@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const app = express();
@@ -23,15 +25,15 @@ const allowedOrigins = [
 
 // Enable CORS with dynamic origin
 app.use(cors({
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     // Always allow health check endpoints
     if (origin.includes('/api/health')) {
       return callback(null, true);
     }
-    
+
     if (allowedOrigins.indexOf(origin) === -1) {
       console.log('CORS blocked request from:', origin);
       console.log('Allowed origins:', allowedOrigins);
@@ -48,6 +50,21 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 
+// Security Headers
+app.use(helmet());
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+
+// Apply rate limiting to all requests
+app.use(limiter);
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected!!!'))
@@ -63,7 +80,7 @@ app.use('/api/user', require('./routes/userInfo'));
 
 // Test route
 app.get('/test', (req, res) => {
-  res.json({ 
+  res.json({
     message: '✅ Server is running',
     host: CURRENT_HOST,
     allowedOrigins: allowedOrigins
