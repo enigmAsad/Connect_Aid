@@ -33,3 +33,4 @@ backend/coverage/
 *.sw?
 
 node_modules/
+.env

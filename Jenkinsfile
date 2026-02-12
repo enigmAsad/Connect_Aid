@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_COMPOSE = 'docker-compose'
-        SERVER_IP = '18.206.159.67'  // Add server IP as environment variable
+        NGINX_PORT = '80'
     }
 
     stages {
@@ -36,19 +36,39 @@ pipeline {
         stage('Prepare Environment Files') {
             steps {
                 echo 'Creating environment files...'
-                writeFile file: 'backEnd/.env', text: """
+                withCredentials([
+                    string(credentialsId: 'connect-aid-server-ip', variable: 'SERVER_IP'),
+                    string(credentialsId: 'connect-aid-mongo-uri', variable: 'MONGO_URI'),
+                    string(credentialsId: 'connect-aid-jwt-secret', variable: 'JWT_SECRET'),
+                    string(credentialsId: 'connect-aid-jwt-expire', variable: 'JWT_EXPIRE'),
+                    string(credentialsId: 'connect-aid-frontend-port', variable: 'FRONTEND_PORT'),
+                    string(credentialsId: 'connect-aid-backend-port', variable: 'BACKEND_PORT'),
+                    string(credentialsId: 'connect-aid-vite-api-url', variable: 'VITE_API_URL')
+                ]) {
+                    writeFile file: 'backEnd/.env', text: """
 NODE_ENV=production
-PORT=5000
+PORT=${BACKEND_PORT}
 CURRENT_HOST=${SERVER_IP}
-FRONTEND_PORT=80
-ADDITIONAL_ORIGINS=http://${SERVER_IP},http://${SERVER_IP}:80,http://nginx,http://nginx:80
-MONGO_URI=mongodb+srv://root:12345@connectaid-cluster.yv9ci.mongodb.net/?retryWrites=true&w=majority&appName=ConnectAid-Cluster
-JWT_SECRET=9b773c7c41a6c77042443a60c24477af6003c6108422540d99ddd04f23ed26206a7739d50586227e8066b8894d112d00a1557438b442815bc3c246cd7b8e7c95
-JWT_EXPIRE=24h
+FRONTEND_PORT=${FRONTEND_PORT}
+ADDITIONAL_ORIGINS=http://${SERVER_IP},http://${SERVER_IP}:${FRONTEND_PORT},http://nginx,http://nginx:${NGINX_PORT}
+MONGO_URI=${MONGO_URI}
+JWT_SECRET=${JWT_SECRET}
+JWT_EXPIRE=${JWT_EXPIRE}
 """
-                writeFile file: 'frontEnd/.env', text: """
-VITE_API_URL=/api
+                    writeFile file: 'frontEnd/.env', text: """
+VITE_API_URL=${VITE_API_URL}
 """
+                    // Create root .env for docker-compose
+                    writeFile file: '.env', text: """
+NODE_ENV=production
+CURRENT_HOST=${SERVER_IP}
+FRONTEND_PORT=${FRONTEND_PORT}
+ADDITIONAL_ORIGINS=http://${SERVER_IP},http://${SERVER_IP}:${FRONTEND_PORT},http://nginx,http://nginx:80
+MONGO_URI=${MONGO_URI}
+JWT_SECRET=${JWT_SECRET}
+JWT_EXPIRE=${JWT_EXPIRE}
+"""
+                }
             }
         }
 
